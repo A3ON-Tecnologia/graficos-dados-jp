@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Empresas por Mês — Evolução</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-top: 20px;
+      color: #6ee7ff;
+      text-shadow: 0 0 10px rgba(110,231,255,0.5);
+      text-align: center;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+      width: 95%;
+      margin-top: 30px;
+    }
+    @media (max-width: 1000px){
+      .chart-grid{ grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px){
+      .chart-grid{ grid-template-columns: 1fr; }
+    }
+    .chart-box {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      padding: 18px;
+      height: 280px;
+    }
+    .chart-title { margin: 0 0 10px; font-weight: 600; color: #d6e6ff; text-align:center; }
+
+    table {
+      width: 95%;
+      border-collapse: collapse;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td { padding: 10px 14px; text-align: center; }
+    th { background: rgba(139,92,246,0.3); color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+    tr:nth-child(even){ background: rgba(255,255,255,0.03); }
+    tr:hover{ background: rgba(110,231,255,0.1); }
+    td{ color:#d0e0ff; }
+    a.voltar{ display:inline-block; margin:20px; padding:10px 16px; border-radius:10px; background:rgba(139,92,246,0.3); color:#fff; text-decoration:none; }
+    a.voltar:hover{ background:rgba(139,92,246,0.5); }
+    
+    /* Estilos para seção Simples Nacional detalhada */
+    .section-detalhada {
+      width: 95%;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .section-title {
+      color: #6ee7ff;
+      font-size: 28px;
+      margin-bottom: 25px;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(110,231,255,0.5);
+    }
+    .chart-container-detalhado {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-bottom: 40px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 15px;
+      padding: 20px;
+      padding-bottom: 60px;
+    }
+    .filtros-mes {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .btn-filtro {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #e0e0e0;
+      cursor: pointer;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-filtro:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(110,231,255,0.5);
+    }
+    .btn-filtro.active {
+      background: rgba(110,231,255,0.3);
+      border-color: rgba(110,231,255,1);
+      color: #fff;
+    }
+    .btn-filtro.cor-azul {
+      border-color: rgba(59,130,246,0.5);
+    }
+    .btn-filtro.cor-azul:hover,
+    .btn-filtro.cor-azul.active {
+      background: rgba(59,130,246,0.3);
+      border-color: rgba(59,130,246,1);
+    }
+    .btn-filtro.cor-verde {
+      border-color: rgba(34,197,94,0.5);
+    }
+    .btn-filtro.cor-verde:hover,
+    .btn-filtro.cor-verde.active {
+      background: rgba(34,197,94,0.3);
+      border-color: rgba(34,197,94,1);
+    }
+    .btn-filtro.cor-vermelho {
+      border-color: rgba(239,68,68,0.5);
+    }
+    .btn-filtro.cor-vermelho:hover,
+    .btn-filtro.cor-vermelho.active {
+      background: rgba(239,68,68,0.3);
+      border-color: rgba(239,68,68,1);
+    }
+    .btn-filtro.cor-amarelo {
+      border-color: rgba(245,158,11,0.5);
+    }
+    .btn-filtro.cor-amarelo:hover,
+    .btn-filtro.cor-amarelo.active {
+      background: rgba(245,158,11,0.3);
+      border-color: rgba(245,158,11,1);
+    }
+    .table-detalhada {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .table-detalhada th {
+      background: rgba(139,92,246,0.3);
+      color: #fff;
+      padding: 14px 16px;
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .table-detalhada td {
+      padding: 14px 16px;
+      text-align: center;
+      color: #d0e0ff;
+    }
+    .table-detalhada td:first-child {
+      text-align: left;
+    }
+    .table-detalhada tr:nth-child(even) {
+      background: rgba(255,255,255,0.03);
+    }
+    .table-detalhada tr:hover {
+      background: rgba(110,231,255,0.1);
+      cursor: pointer;
+    }
+    .table-detalhada tr.selected {
+      background: rgba(110,231,255,0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Empresas — Evolução Mensal por Tipo de Tributação</h1>
+  <a href="home.html" class="voltar">← Voltar para Home</a>
+
+  <div class="chart-grid">
+    <div class="chart-box"><h3 class="chart-title">Simples Nacional</h3><canvas id="chartSimples"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">MEI</h3><canvas id="chartMei"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">Lucro Real</h3><canvas id="chartLucroReal"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">Lucro Presumido</h3><canvas id="chartLucroPres"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">Rural</h3><canvas id="chartRural"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">Filiais</h3><canvas id="chartFiliais"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">Domésticas</h3><canvas id="chartDomesticas"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">Autônomos</h3><canvas id="chartAutonomos"></canvas></div>
+    <div class="chart-box"><h3 class="chart-title">Associações</h3><canvas id="chartAssociacoes"></canvas></div>
+  </div>
+
+  <!-- TABELA GERAL -->
+  <table>
+    <thead>
+      <tr>
+        <th>Tributação</th>
+        <th>Mês</th>
+        <th>Quantidade</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Simples Nacional</td><td>06 - JUNHO</td><td>173</td></tr>
+      <tr><td>Simples Nacional</td><td>07 - JULHO</td><td>174</td></tr>
+      <tr><td>Simples Nacional</td><td>08 - AGOSTO</td><td>175</td></tr>
+      <tr><td>Simples Nacional</td><td>09 - SETEMBRO</td><td>175</td></tr>
+
+      <tr><td>MEI</td><td>06 - JUNHO</td><td>148</td></tr>
+      <tr><td>MEI</td><td>07 - JULHO</td><td>154</td></tr>
+      <tr><td>MEI</td><td>08 - AGOSTO</td><td>158</td></tr>
+      <tr><td>MEI</td><td>09 - SETEMBRO</td><td>163</td></tr>
+
+      <tr><td>Lucro Real</td><td>06 - JUNHO</td><td>27</td></tr>
+      <tr><td>Lucro Real</td><td>07 - JULHO</td><td>27</td></tr>
+      <tr><td>Lucro Real</td><td>08 - AGOSTO</td><td>27</td></tr>
+      <tr><td>Lucro Real</td><td>09 - SETEMBRO</td><td>27</td></tr>
+
+      <tr><td>Lucro Presumido</td><td>06 - JUNHO</td><td>73</td></tr>
+      <tr><td>Lucro Presumido</td><td>07 - JULHO</td><td>74</td></tr>
+      <tr><td>Lucro Presumido</td><td>08 - AGOSTO</td><td>74</td></tr>
+      <tr><td>Lucro Presumido</td><td>09 - SETEMBRO</td><td>74</td></tr>
+
+      <tr><td>Rural</td><td>06 - JUNHO</td><td>33</td></tr>
+      <tr><td>Rural</td><td>07 - JULHO</td><td>26</td></tr>
+      <tr><td>Rural</td><td>08 - AGOSTO</td><td>26</td></tr>
+      <tr><td>Rural</td><td>09 - SETEMBRO</td><td>26</td></tr>
+
+      <tr><td>Filiais</td><td>06 - JUNHO</td><td>31</td></tr>
+      <tr><td>Filiais</td><td>07 - JULHO</td><td>31</td></tr>
+      <tr><td>Filiais</td><td>08 - AGOSTO</td><td>31</td></tr>
+      <tr><td>Filiais</td><td>09 - SETEMBRO</td><td>31</td></tr>
+
+      <tr><td>Domésticas</td><td>06 - JUNHO</td><td>18</td></tr>
+      <tr><td>Domésticas</td><td>07 - JULHO</td><td>18</td></tr>
+      <tr><td>Domésticas</td><td>08 - AGOSTO</td><td>18</td></tr>
+      <tr><td>Domésticas</td><td>09 - SETEMBRO</td><td>18</td></tr>
+
+      <tr><td>Autônomos</td><td>06 - JUNHO</td><td>2</td></tr>
+      <tr><td>Autônomos</td><td>07 - JULHO</td><td>8</td></tr>
+      <tr><td>Autônomos</td><td>08 - AGOSTO</td><td>8</td></tr>
+      <tr><td>Autônomos</td><td>09 - SETEMBRO</td><td>8</td></tr>
+
+      <tr><td>Associações</td><td>06 - JUNHO</td><td>90</td></tr>
+      <tr><td>Associações</td><td>07 - JULHO</td><td>87</td></tr>
+      <tr><td>Associações</td><td>08 - AGOSTO</td><td>82</td></tr>
+      <tr><td>Associações</td><td>09 - SETEMBRO</td><td>82</td></tr>
+    </tbody>
+  </table>
+
+  <!-- SEÇÃO SIMPLES NACIONAL DETALHADA -->
+  <div class="section-detalhada">
+    <h2 class="section-title">Simples Nacional — Detalhamento</h2>
+    
+    <div class="chart-container-detalhado">
+      <canvas id="chartSimplesDetalhado"></canvas>
+    </div>
+
+    <div class="filtros-mes">
+      <button class="btn-filtro active" data-desc="TODOS" onclick="filtrarSimplesNacional('TODOS')">TODOS</button>
+      <button class="btn-filtro cor-azul" data-desc="Simples Nacional" onclick="filtrarSimplesNacional('Simples Nacional')">SIMPLES NACIONAL</button>
+      <button class="btn-filtro cor-verde" data-desc="Dep. Serviços" onclick="filtrarSimplesNacional('Dep. Serviços')">DEP. SERVIÇOS</button>
+      <button class="btn-filtro cor-vermelho" data-desc="Dep. Simples Nacional" onclick="filtrarSimplesNacional('Dep. Simples Nacional')">DEP. SIMPLES NACIONAL</button>
+      <button class="btn-filtro cor-amarelo" data-desc="Filiais" onclick="filtrarSimplesNacional('Filiais')">FILIAIS</button>
+    </div>
+
+    <table class="table-detalhada" id="tableSimplesDetalhado">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Junho</th>
+          <th>Julho</th>
+          <th>Agosto</th>
+          <th>Setembro</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-simples-detalhado"></tbody>
+    </table>
+  </div>
+
+
+  <script>
+    const MESES = ['06 - JUNHO','07 - JULHO','08 - AGOSTO','09 - SETEMBRO'];
+
+    const series = {
+      'Simples Nacional': { cor: 'rgba(59,130,246,0.9)', valores: [173,174,175,175] },
+      'MEI': { cor: 'rgba(234,179,8,0.9)', valores: [148,154,158,163] },
+      'Lucro Real': { cor: 'rgba(139,92,246,0.9)', valores: [27,27,27,27] },
+      'Lucro Presumido': { cor: 'rgba(16,185,129,0.9)', valores: [73,74,74,74] },
+      'Rural': { cor: 'rgba(244,114,182,0.9)', valores: [33,26,26,26] },
+      'Filiais': { cor: 'rgba(14,165,233,0.9)', valores: [31,30,31,31] },
+      'Domésticas': { cor: 'rgba(239,68,68,0.9)', valores: [18,18,18,18] },
+      'Autônomos': { cor: 'rgba(132,204,22,0.9)', valores: [2,8,8,8] },
+      'Associações': { cor: 'rgba(217,70,239,0.9)', valores: [90,87,82,82] }
+    };
+
+    // Registrar plugin datalabels para os gráficos principais
+    Chart.register(ChartDataLabels);
+
+    function criarGraficoArea(canvasId, label, serie){
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: MESES,
+          datasets: [{
+            label: label,
+            data: serie.valores,
+            borderColor: serie.cor,
+            backgroundColor: serie.cor.replace('0.9','0.25'),
+            fill: true,
+            borderWidth: 2.2,
+            tension: 0.35,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#fff',
+            pointBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { color:'#e0e0e0' }, grid:{ color:'rgba(255,255,255,0.1)' } },
+            x: { ticks:{ color:'#e0e0e0' }, grid:{ color:'rgba(255,255,255,0.05)' } }
+          },
+          plugins: { 
+            legend:{ labels:{ color:'#e0e0e0' } },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.9)',
+              padding: 16,
+              titleColor: '#6ee7ff',
+              titleFont: { size: 16, weight: 'bold' },
+              bodyColor: '#fff',
+              bodyFont: { size: 18, weight: 'bold' },
+              displayColors: false,
+              callbacks: {
+                title: (ctx) => ctx[0].label,
+                label: (ctx) => label + ': ' + ctx.parsed.y + ' empresas'
+              }
+            },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#fff',
+              font: { 
+                weight: 'bold', 
+                size: 13
+              },
+              formatter: (value) => value,
+              backgroundColor: serie.cor.replace('0.9','0.8'),
+              borderRadius: 4,
+              padding: 6,
+              offset: 2
+            }
+          }
+        }
+      });
+    }
+
+    criarGraficoArea('chartSimples','Simples Nacional',series['Simples Nacional']);
+    criarGraficoArea('chartMei','MEI',series['MEI']);
+    criarGraficoArea('chartLucroReal','Lucro Real',series['Lucro Real']);
+    criarGraficoArea('chartLucroPres','Lucro Presumido',series['Lucro Presumido']);
+    criarGraficoArea('chartRural','Rural',series['Rural']);
+    criarGraficoArea('chartFiliais','Filiais',series['Filiais']);
+    criarGraficoArea('chartDomesticas','Domésticas',series['Domésticas']);
+    criarGraficoArea('chartAutonomos','Autônomos',series['Autônomos']);
+    criarGraficoArea('chartAssociacoes','Associações',series['Associações']);
+
+    // ============================================
+    // SEÇÃO SIMPLES NACIONAL DETALHADA
+    // ============================================
+    
+    // Registra o plugin datalabels
+    Chart.register(ChartDataLabels);
+
+    const dadosSimplesNacional = [
+      { descricao: 'Simples Nacional', junho: 173, julho: 174, agosto: 175, setembro: 174 },
+      { descricao: 'Dep. Serviços', junho: 61, julho: 61, agosto: 61, setembro: 61 },
+      { descricao: 'Dep. Simples Nacional', junho: 99, julho: 100, agosto: 101, setembro: 100 },
+      { descricao: 'Filiais', junho: 13, julho: 13, agosto: 13, setembro: 13 }
+    ];
+
+    const mesesDetalhado = ['Junho', 'Julho', 'Agosto', 'Setembro'];
+    
+    const coresDetalhado = [
+      { bg: 'rgba(59,130,246,0.7)', border: 'rgba(59,130,246,1)' },
+      { bg: 'rgba(34,197,94,0.7)', border: 'rgba(34,197,94,1)' },
+      { bg: 'rgba(239,68,68,0.7)', border: 'rgba(239,68,68,1)' },
+      { bg: 'rgba(245,158,11,0.7)', border: 'rgba(245,158,11,1)' }
+    ];
+
+    const tbodyDetalhado = document.getElementById('tbody-simples-detalhado');
+    let selectedLines = new Set();
+    let chartInstanceDetalhado = null;
+
+    // Preenche tabela
+    dadosSimplesNacional.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.dataset.index = index;
+      tr.innerHTML = `
+        <td>${item.descricao}</td>
+        <td>${item.junho}</td>
+        <td>${item.julho}</td>
+        <td>${item.agosto}</td>
+        <td>${item.setembro}</td>
+      `;
+      tr.addEventListener('click', () => toggleLineSelection(index));
+      tbodyDetalhado.appendChild(tr);
+    });
+
+    // Cria gráfico de barras
+    function criarGraficoDetalhado(linhasSelecionadas = null) {
+      const ctx = document.getElementById('chartSimplesDetalhado').getContext('2d');
+      
+      if (chartInstanceDetalhado) {
+        chartInstanceDetalhado.destroy();
+      }
+
+      const dadosParaMostrar = linhasSelecionadas === null 
+        ? dadosSimplesNacional 
+        : dadosSimplesNacional.filter((_, idx) => linhasSelecionadas.has(idx));
+
+      const datasets = dadosParaMostrar.map((item, idx) => {
+        const originalIndex = linhasSelecionadas === null 
+          ? idx 
+          : Array.from(linhasSelecionadas)[dadosParaMostrar.indexOf(item)];
+        
+        return {
+          label: item.descricao,
+          data: [item.junho, item.julho, item.agosto, item.setembro],
+          backgroundColor: coresDetalhado[dadosSimplesNacional.indexOf(item)].bg,
+          borderColor: coresDetalhado[dadosSimplesNacional.indexOf(item)].border,
+          borderWidth: 2
+        };
+      });
+
+      chartInstanceDetalhado = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: mesesDetalhado,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const datasetIndex = elements[0].datasetIndex;
+              const descricaoClicada = datasets[datasetIndex].label;
+              const indexOriginal = dadosSimplesNacional.findIndex(d => d.descricao === descricaoClicada);
+              toggleLineSelection(indexOriginal);
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 200,
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              ticks: { 
+                color: '#e0e0e0',
+                stepSize: 20
+              },
+              title: {
+                display: true,
+                text: 'Quantidade',
+                color: '#6ee7ff',
+                font: { size: 14, weight: 'bold' }
+              }
+            },
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#e0e0e0', font: { size: 12 } }
+            }
+          },
+          plugins: {
+            legend: { 
+              labels: { 
+                color: '#e0e0e0',
+                font: { size: 13 },
+                padding: 15,
+                usePointStyle: true
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: 12,
+              titleColor: '#6ee7ff',
+              bodyColor: '#fff',
+              callbacks: {
+                label: (ctx) => ctx.dataset.label + ': ' + ctx.parsed.y
+              }
+            },
+            datalabels: {
+              anchor: 'end',
+              align: 'top',
+              color: '#fff',
+              font: { 
+                weight: 'bold', 
+                size: 16 
+              },
+              formatter: (value) => value,
+              offset: 4
+            }
+          }
+        }
+      });
+    }
+
+    // Toggle seleção de linha
+    function toggleLineSelection(index) {
+      const rows = tbodyDetalhado.querySelectorAll('tr');
+      
+      if (selectedLines.has(index)) {
+        selectedLines.delete(index);
+        rows[index].classList.remove('selected');
+      } else {
+        selectedLines.add(index);
+        rows[index].classList.add('selected');
+      }
+
+      // Atualiza gráfico
+      if (selectedLines.size > 0) {
+        criarGraficoDetalhado(selectedLines);
+      } else {
+        criarGraficoDetalhado(null);
+      }
+    }
+
+    // Inicializa gráfico
+    criarGraficoDetalhado(null);
+
+    // Função de filtro por descrição
+    let descricaoFiltroAtiva = 'TODOS';
+
+    function filtrarSimplesNacional(descricao) {
+      descricaoFiltroAtiva = descricao;
+      
+      // Atualiza botões ativos
+      const secaoDetalhada = document.querySelector('#tableSimplesDetalhado').closest('.section-detalhada');
+      const botoesFiltro = secaoDetalhada.querySelectorAll('.btn-filtro');
+      botoesFiltro.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.desc === descricao) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Filtra linhas da tabela
+      const rows = tbodyDetalhado.querySelectorAll('tr');
+      rows.forEach(row => {
+        const descricaoLinha = row.children[0].textContent;
+        if (descricao === 'TODOS' || descricaoLinha === descricao) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Filtra gráfico
+      if (descricao === 'TODOS') {
+        criarGraficoDetalhado(null);
+      } else {
+        const indicesFiltrados = new Set();
+        dadosSimplesNacional.forEach((item, index) => {
+          if (item.descricao === descricao) {
+            indicesFiltrados.add(index);
+          }
+        });
+        criarGraficoDetalhado(indicesFiltrados);
+      }
+
+      // Limpa seleções anteriores
+      selectedLines.clear();
+      rows.forEach(row => row.classList.remove('selected'));
+    }
+  </script>
+</body>
+</html>

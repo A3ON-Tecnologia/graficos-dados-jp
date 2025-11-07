@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impostos Fiscal — Percentual de Entregas</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body{margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:radial-gradient(circle at top left,#0f2027,#203a43,#2c5364);color:#e0e0e0;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+    h1{margin-top:20px;color:#6ee7ff;text-shadow:0 0 10px rgba(110,231,255,.5);text-align:center}
+    a.voltar{display:inline-block;margin:8px 0 8px;padding:10px 16px;border-radius:10px;background:rgba(139,92,246,.3);color:#fff;text-decoration:none}
+    a.voltar:hover{background:rgba(139,92,246,.5)}
+
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(340px,1fr));gap:24px;width:95%;margin-top:18px}
+    @media(max-width:960px){.grid{grid-template-columns:1fr}}
+    .card{background:rgba(255,255,255,.05);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4);padding:16px;height:340px}
+    .card h3{margin:0 0 8px;color:#d6e6ff;text-align:center}
+
+    .table-container{width:95%;margin:30px 0;background:rgba(255,255,255,.05);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4);padding:24px;overflow-x:auto}
+    .table-container h2{color:#6ee7ff;text-align:center;margin-top:0;text-shadow:0 0 10px rgba(110,231,255,.5)}
+    table{width:100%;border-collapse:collapse;margin-top:16px}
+    th,td{padding:12px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1)}
+    th{background:rgba(110,231,255,.15);color:#6ee7ff;font-weight:600;position:sticky;top:0}
+    tbody tr{transition:all .2s ease;cursor:pointer}
+    tbody tr:hover{background:rgba(110,231,255,.1);transform:scale(1.01)}
+    tbody tr.selected{background:rgba(110,231,255,.2);box-shadow:0 0 15px rgba(110,231,255,.3)}
+    .mes-col{font-weight:600;color:#a5d8ff}
+  </style>
+</head>
+<body>
+  <h1>Impostos Fiscal — Percentual de Entregas</h1>
+  <a href="home.html" class="voltar">← Voltar para Home</a>
+
+  <div class="grid">
+    <div class="card"><h3>SETEMBRO</h3><canvas id="chartSetembro"></canvas></div>
+    <div class="card"><h3>AGOSTO</h3><canvas id="chartAgosto"></canvas></div>
+    <div class="card"><h3>JULHO</h3><canvas id="chartJulho"></canvas></div>
+    <div class="card"><h3>JUNHO</h3><canvas id="chartJunho"></canvas></div>
+  </div>
+
+  <div class="table-container">
+    <h2>Tabela Detalhada por Período de Entrega</h2>
+    <table id="tabelaDados">
+      <thead>
+        <tr>
+          <th>Mês</th>
+          <th>Até dia 03</th>
+          <th>Entre dia 04 e 05</th>
+          <th>Entre dia 06 e 09</th>
+          <th>Dia 10</th>
+          <th>Posterior ao dia 10</th>
+          <th>Falta entregar</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaBody">
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // Registrar o plugin datalabels globalmente
+    Chart.register(ChartDataLabels);
+
+    const LABELS = ['Até dia 03','Entre o dia 04 e 05','Entre o dia 06 e 09','Dia 10','Posterior ao dia 10','Falta entregar'];
+
+    // Dados reais da planilha (Percentual entregue em %)
+    const JUNHO = [47.1, 27.5, 11.8, 9.8, 3.9, 0.0];
+    const JULHO = [44.6, 29.5, 10.8, 9.8, 5.3, 0.0];
+    const AGOSTO = [42.0, 27.3, 11.3, 10.0, 9.4, 0.0];
+    const SETEMBRO = [43.8, 25.2, 12.6, 11.3, 7.1, 0.0];
+
+    const chartInstances = {};
+
+    function chartLine(canvasId,label,data,color){
+      const ctx=document.getElementById(canvasId).getContext('2d');
+      const chart = new Chart(ctx,{
+        type:'line',
+        data:{labels:LABELS,datasets:[{label:label,data:data,borderColor:color,backgroundColor:color.replace('1)', '0.25)'),fill:true,borderWidth:2.2,tension:0.35,pointRadius:6,pointBackgroundColor:'#fff',pointBorderWidth:2,pointHoverRadius:8}]},
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          onClick: (e, activeEls) => {
+            if(activeEls.length > 0) {
+              const index = activeEls[0].index;
+              highlightTableColumn(index);
+            }
+          },
+          scales:{
+            y:{beginAtZero:true,max:100,ticks:{color:'#e0e0e0',callback:(v)=>v+'%'}},
+            x:{ticks:{color:'#e0e0e0'},grid:{color:'rgba(255,255,255,.05)'}}
+          },
+          plugins:{
+            legend:{labels:{color:'#e0e0e0'}},
+            datalabels:{
+              color:'#fff',
+              font:{weight:'bold',size:11},
+              formatter:(value)=>value+'%',
+              anchor:'end',
+              align:'top',
+              offset:4,
+              backgroundColor:color.replace('1)','0.7)'),
+              borderRadius:4,
+              padding:4
+            }
+          }
+        }
+      });
+      chartInstances[label] = chart;
+      return chart;
+    }
+
+    // Criar gráficos em ordem regressiva
+    chartLine('chartSetembro','Setembro',SETEMBRO,'rgba(239,68,68,1)');
+    chartLine('chartAgosto','Agosto',AGOSTO,'rgba(16,185,129,1)');
+    chartLine('chartJulho','Julho',JULHO,'rgba(234,179,8,1)');
+    chartLine('chartJunho','Junho',JUNHO,'rgba(59,130,246,1)');
+
+    // Preencher tabela
+    const meses = [
+      {nome: 'Setembro', dados: SETEMBRO, cor: 'rgba(239,68,68,1)'},
+      {nome: 'Agosto', dados: AGOSTO, cor: 'rgba(16,185,129,1)'},
+      {nome: 'Julho', dados: JULHO, cor: 'rgba(234,179,8,1)'},
+      {nome: 'Junho', dados: JUNHO, cor: 'rgba(59,130,246,1)'}
+    ];
+
+    const tbody = document.getElementById('tabelaBody');
+    meses.forEach((mes, mesIndex) => {
+      const tr = document.createElement('tr');
+      tr.dataset.mes = mes.nome;
+      
+      const tdMes = document.createElement('td');
+      tdMes.className = 'mes-col';
+      tdMes.textContent = mes.nome;
+      tdMes.style.color = mes.cor;
+      tr.appendChild(tdMes);
+
+      mes.dados.forEach((valor, colIndex) => {
+        const td = document.createElement('td');
+        td.textContent = valor + '%';
+        td.dataset.colIndex = colIndex;
+        tr.appendChild(td);
+      });
+
+      // Click na linha da tabela destaca o gráfico correspondente
+      tr.addEventListener('click', () => {
+        document.querySelectorAll('tbody tr').forEach(r => r.classList.remove('selected'));
+        tr.classList.add('selected');
+        highlightChart(mes.nome);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    function highlightChart(mesNome) {
+      Object.keys(chartInstances).forEach(key => {
+        const chart = chartInstances[key];
+        if(key === mesNome) {
+          chart.data.datasets[0].borderWidth = 4;
+          chart.data.datasets[0].pointRadius = 8;
+        } else {
+          chart.data.datasets[0].borderWidth = 2.2;
+          chart.data.datasets[0].pointRadius = 6;
+        }
+        chart.update();
+      });
+    }
+
+    function highlightTableColumn(colIndex) {
+      document.querySelectorAll('tbody td').forEach(td => {
+        td.style.background = '';
+        td.style.fontWeight = '';
+      });
+      document.querySelectorAll(`tbody td[data-col-index="${colIndex}"]`).forEach(td => {
+        td.style.background = 'rgba(110,231,255,0.2)';
+        td.style.fontWeight = 'bold';
+      });
+    }
+  </script>
+</body>
+</html>

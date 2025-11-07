@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banco de Horas — Agosto x Setembro</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-top: 20px;
+      color: #6ee7ff;
+      text-shadow: 0 0 10px rgba(110,231,255,0.5);
+      font-size: 2em;
+      text-align: center;
+    }
+    .chart-container {
+      position: relative;
+      width: 95%;
+      height: 400px;
+      margin: 20px auto;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      padding: 20px;
+      display: none;
+    }
+    .chart-container.visible {
+      display: block;
+    }
+    table {
+      width: 95%;
+      border-collapse: collapse;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 10px 14px;
+      text-align: center;
+    }
+    th {
+      background: rgba(139,92,246,0.3);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.9em;
+    }
+    tr:nth-child(even) {
+      background: rgba(255,255,255,0.03);
+    }
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    tbody tr:hover {
+      background: rgba(110,231,255,0.2);
+    }
+    tbody tr.selected {
+      background: rgba(110,231,255,0.3);
+    }
+    td {
+      color: #d0e0ff;
+    }
+    a.voltar {
+      display:inline-block;
+      margin:20px;
+      padding:10px 16px;
+      border-radius:10px;
+      background:rgba(139,92,246,0.3);
+      color:#fff;
+      text-decoration:none;
+      transition:background 0.3s;
+    }
+    a.voltar:hover{background:rgba(139,92,246,0.5);}
+    .btn-marcar-todos {
+      display:inline-block;
+      margin:20px;
+      padding:10px 16px;
+      border-radius:10px;
+      background:rgba(110,231,255,0.3);
+      color:#fff;
+      border:none;
+      cursor:pointer;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      transition:background 0.3s;
+    }
+    .btn-marcar-todos:hover{background:rgba(110,231,255,0.5);}
+  </style>
+</head>
+<body>
+  <h1>Banco de Horas — Agosto x Setembro</h1>
+  <a href="home.html" class="voltar">← Voltar para Home</a>
+  <button class="btn-marcar-todos" onclick="marcarTodos()">Marcar Todos</button>
+
+  <div class="chart-container">
+    <canvas id="bancoHorasChart"></canvas>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Agosto</th>
+        <th>Setembro</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-body"></tbody>
+  </table>
+
+  <script>
+    const dados = [
+      { nome: 'ALESSANDRA APARECIDA MENDES RAIHER', agosto: -14.02, setembro: -17.12 },
+      { nome: 'ANA KELEN DOS SANTOS NASCIMENTO', agosto: -7.34, setembro: -11.00 },
+      { nome: 'BIANCA SOUZA TEIXEIRA', agosto: -35.05, setembro: -37.41 },
+      { nome: 'CASSIANDRO PIAZZA ALVES', agosto: 18.23, setembro: 33.08 },
+      { nome: 'CASSIELE RESTELATTO', agosto: -16.57, setembro: -32.35 },
+      { nome: 'CRISTIANO RODRIGUES PIROLLI', agosto: 0.58, setembro: 8.34 },
+      { nome: 'DARLIANY REGINA MELLO MENDES', agosto: 6.40, setembro: 12.30 },
+      { nome: 'EDUARDA HUPALO SANTOS', agosto: 3.54, setembro: -6.27 },
+      { nome: 'FERNANDO BORGIO', agosto: -30.44, setembro: -25.19 },
+      { nome: 'GABRIELI GALAFASSI DUQUESNE', agosto: -5.46, setembro: -7.00 },
+      { nome: 'GUSTAVO DE ABREU BECKER', agosto: 8.58, setembro: -4.55 },
+      { nome: 'HELENA COELHO DO ROSARIO', agosto: 0.03, setembro: 8.44 },
+      { nome: 'ISADORA MONTEIRO PEREIRA', agosto: -1.23, setembro: 8.49 },
+      { nome: 'JANETE MARTINHAGO COSTA', agosto: -0.42, setembro: 3.44 },
+      { nome: 'JULIANA GONCALVES THOME', agosto: 6.47, setembro: -9.02 },
+      { nome: 'LARISSA STRATMAMN BLEISCHVEL', agosto: -14.42, setembro: -4.28 },
+      { nome: 'LAURA EMILIA DOS ANJOS CORDEIRO', agosto: -7.44, setembro: -12.36 },
+      { nome: 'LETICIA POSSERA ODORISSI', agosto: -17.58, setembro: -19.20  },
+      { nome: 'LUANA FERRO', agosto: 4.28, setembro: 7.12 },
+      { nome: 'MARA ALBERTI RAMPON', agosto: 0.04, setembro: -47.39 },
+      { nome: 'PABLO CESAR DA SILVA', agosto: -2.21, setembro: 6.02 },
+      { nome: 'RENAN DA SILVA SCHMOELLER', agosto: -5.12, setembro: -17.28 },
+      { nome: 'RENNERSON RYAN PETRICH', agosto: 2.24, setembro: 4.07 },
+      { nome: 'TANIA DALL AGNOL DE LIMA', agosto: -16.32, setembro: -39.28 },
+      { nome: 'THAISSA SLONGO', agosto: -13.29, setembro: -16.42 }
+    ];
+
+    // Registra o plugin datalabels
+    Chart.register(ChartDataLabels);
+
+    const tbody = document.getElementById('tabela-body');
+    let chartInstance = null;
+    let selectedRows = new Set();
+    let selectedData = [];
+
+    dados.forEach((d, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${d.nome}</td>
+        <td>${d.agosto.toFixed(2)} h</td>
+        <td>${d.setembro.toFixed(2)} h</td>
+      `;
+      tr.dataset.index = index;
+      tr.addEventListener('click', () => toggleSelection(d, tr, index));
+      tbody.appendChild(tr);
+    });
+
+    function toggleSelection(colaborador, row, index) {
+      // Toggle seleção
+      if (selectedRows.has(index)) {
+        selectedRows.delete(index);
+        row.classList.remove('selected');
+        selectedData = selectedData.filter(d => d.nome !== colaborador.nome);
+      } else {
+        selectedRows.add(index);
+        row.classList.add('selected');
+        selectedData.push(colaborador);
+      }
+
+      // Atualiza ou oculta o gráfico
+      if (selectedData.length > 0) {
+        atualizarGrafico();
+      } else {
+        ocultarGrafico();
+      }
+    }
+
+    function atualizarGrafico() {
+      const chartContainer = document.querySelector('.chart-container');
+      const ctx = document.getElementById('bancoHorasChart').getContext('2d');
+
+      // Mostra o container do gráfico
+      chartContainer.classList.add('visible');
+
+      // Destrói gráfico anterior se existir
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      // Prepara dados para o gráfico
+      const nomes = selectedData.map(d => d.nome);
+      const agostoData = selectedData.map(d => d.agosto);
+      const setembroData = selectedData.map(d => d.setembro);
+
+      // Cria novo gráfico horizontal com múltiplos colaboradores
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: nomes,
+          datasets: [
+            {
+              label: 'Agosto',
+              data: agostoData,
+              backgroundColor: 'rgba(239,68,68,0.7)',
+              borderColor: 'rgba(239,68,68,1)',
+              borderWidth: 2
+            },
+            {
+              label: 'Setembro',
+              data: setembroData,
+              backgroundColor: 'rgba(245,158,11,0.7)',
+              borderColor: 'rgba(245,158,11,1)',
+              borderWidth: 2
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              beginAtZero: true,
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              ticks: {
+                color: '#e0e0e0',
+                callback: value => value + ' h'
+              },
+              title: {
+                display: true,
+                text: 'Saldo de Horas',
+                color: '#6ee7ff',
+                font: { size: 14, weight: 'bold' }
+              }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#e0e0e0', font: { size: 11 } }
+            }
+          },
+          plugins: {
+            legend: { 
+              labels: { color: '#e0e0e0', font: { size: 13 } }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => ctx.dataset.label + ': ' + ctx.parsed.x.toFixed(2) + ' h'
+              }
+            },
+            datalabels: {
+              anchor: (context) => {
+                const value = context.dataset.data[context.dataIndex];
+                return value >= 0 ? 'end' : 'start';
+              },
+              align: (context) => {
+                const value = context.dataset.data[context.dataIndex];
+                return value >= 0 ? 'end' : 'start';
+              },
+              color: '#fff',
+              font: { weight: 'bold', size: 11 },
+              formatter: (value) => value.toFixed(2) + ' h',
+              offset: 4
+            }
+          }
+        }
+      });
+
+      // Scroll suave até o gráfico
+      chartContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function ocultarGrafico() {
+      const chartContainer = document.querySelector('.chart-container');
+      chartContainer.classList.remove('visible');
+      if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+      }
+    }
+
+    function marcarTodos() {
+      const allRows = tbody.querySelectorAll('tr');
+      
+      if (selectedRows.size === dados.length) {
+        selectedRows.clear();
+        selectedData = [];
+        allRows.forEach(row => row.classList.remove('selected'));
+        ocultarGrafico();
+      } else {
+        selectedRows.clear();
+        selectedData = [];
+        dados.forEach((d, index) => {
+          selectedRows.add(index);
+          selectedData.push(d);
+          allRows[index].classList.add('selected');
+        });
+        atualizarGrafico();
+      }
+    }
+  </script>
+</body>
+</html>

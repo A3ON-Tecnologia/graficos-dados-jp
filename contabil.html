@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contábil — Status e Progresso</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:radial-gradient(circle at top left,#0f2027,#203a43,#2c5364);
+  color:#e0e0e0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+}
+h1 {
+  margin-top:20px;
+  color:#6ee7ff;
+  text-shadow:0 0 10px rgba(110,231,255,.5);
+  text-align:center;
+}
+.chart-container {
+  width:95%;
+  height:70vh;
+  margin-top:20px;
+  background:rgba(255,255,255,.05);
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  padding:20px;
+  overflow-y:auto;
+}
+table {
+  width:95%;
+  border-collapse:collapse;
+  margin:40px auto;
+  background:rgba(255,255,255,.05);
+  box-shadow:0 5px 20px rgba(0,0,0,.3);
+  border-radius:12px;
+  overflow:hidden;
+}
+th, td {
+  padding:10px 14px;
+  text-align:left;
+  vertical-align:top;
+}
+th {
+  background:rgba(139,92,246,.3);
+  color:#fff;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+tr:nth-child(even){background:rgba(255,255,255,.03);}
+tr:hover{background:rgba(110,231,255,.1);}
+td{color:#d0e0ff;white-space:pre-line;}
+a.voltar {
+  display:inline-block;
+  margin:20px;
+  padding:10px 16px;
+  border-radius:10px;
+  background:rgba(139,92,246,.3);
+  color:#fff;
+  text-decoration:none;
+}
+a.voltar:hover{background:rgba(139,92,246,.5);}
+</style>
+</head>
+<body>
+<h1>Contábil — Status e Progresso</h1>
+<a href="home.html" class="voltar">← Voltar para Home</a>
+
+<div class="chart-container">
+  <canvas id="chartContabil"></canvas>
+</div>
+
+<table>
+<thead><tr><th>ID</th><th>Empresa</th><th>Responsável</th><th>Progresso</th><th>Observações</th><th>Status</th></tr></thead>
+<tbody id="tableBody">
+</tbody></table>
+
+<script>
+let allData = [];
+let filteredStatus = null;
+
+// Carrega dados do CSV
+async function loadData() {
+  try {
+    const response = await fetch('planilhas/OK - quem_somos__contabil.csv');
+    const csv = await response.text();
+    
+    allData = [];
+    
+    // Parse CSV linha por linha, lidando com aspas e quebras de linha
+    let currentLine = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < csv.length; i++) {
+      const char = csv[i];
+      
+      if (char === '"') {
+        inQuotes = !inQuotes;
+        currentLine += char;
+      } else if (char === '\n' && !inQuotes) {
+        // Fim da linha
+        if (currentLine.trim()) {
+          processLine(currentLine);
+        }
+        currentLine = '';
+      } else {
+        currentLine += char;
+      }
+    }
+    
+    // Processa última linha se houver
+    if (currentLine.trim()) {
+      processLine(currentLine);
+    }
+    
+    // Remove o cabeçalho
+    allData.shift();
+    
+    console.log('Total de empresas carregadas:', allData.length);
+    console.log('Empresas por status:', allData.reduce((acc, item) => {
+      acc[item.status] = (acc[item.status] || 0) + 1;
+      return acc;
+    }, {}));
+    
+    renderTable(allData);
+    updateChart();
+  } catch (e) {
+    console.error('Erro ao carregar CSV:', e);
+  }
+}
+
+function processLine(line) {
+  const parts = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let j = 0; j < line.length; j++) {
+    const char = line[j];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ';' && !inQuotes) {
+      parts.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  parts.push(current);
+  
+  if (parts.length >= 6) {
+    const empId = parts[0].trim();
+    const empresa = parts[1].trim();
+    const responsavel = parts[2].trim();
+    const progresso = parts[3].trim();
+    const observacoes = parts[4].replace(/"/g, '').trim();
+    let status = parts[5].replace(/"/g, '').trim();
+    
+    // Corrige erro de digitação no CSV: Fernandi -> Fernando
+    status = status.replace('Fernandi', 'Fernando');
+    
+    if (empId && empresa) {
+      allData.push({
+        empId,
+        empresa,
+        responsavel,
+        progresso,
+        observacoes,
+        status
+      });
+    }
+  }
+}
+
+// Renderiza tabela
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  
+  data.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+      <td><strong>${row.empId}</strong></td>
+      <td>${row.empresa}</td>
+      <td>${row.responsavel}</td>
+      <td>${row.progresso}</td>
+      <td>${row.observacoes}</td>
+      <td>${row.status}</td>
+    `;
+    tr.addEventListener('click', () => {
+      filterByStatus(row.status);
+    });
+    tr.addEventListener('mouseenter', () => {
+      tr.style.background = 'rgba(110,231,255,.2)';
+    });
+    tr.addEventListener('mouseleave', () => {
+      tr.style.background = '';
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+// Atualiza gráfico
+function updateChart() {
+  // Dados fixos conforme especificado
+  const labels = [
+    'OK',
+    'Pendencia Tadeu/Bianca/Helena',
+    'Pendencia Tadeu/Fernando/Helena',
+    'Conferida/Pendencia Cliente',
+    'S/M',
+    'Conferida/Pendencia Cliente/Bianca',
+    '?',
+    'Conferida/Pendencia Fernando/Fiscal',
+    'Pendencia Marinelsi/Tadeu/Helena',
+    'Pendencia Tadeu/Cassio/Helena'
+  ];
+  
+  const data = [15, 7, 7, 5, 5, 2, 1, 1, 1, 1];
+  
+  const bgColors = [
+    '#6ee7ff',   // OK
+    '#8b5cf6',   // Pendencia Tadeu/Bianca/Helena
+    '#34d399',   // Pendencia Tadeu/Fernando/Helena
+    '#f59e0b',   // Conferida/Pendencia Cliente
+    '#3b82f6',   // S/M
+    '#a855f7',   // Conferida/Pendencia Cliente/Bianca
+    '#f87171',   // ?
+    '#14b8a6',   // Conferida/Pendencia Fernando/Fiscal
+    '#ec4899',   // Pendencia Marinelsi/Tadeu/Helena
+    '#60a5fa'    // Pendencia Tadeu/Cassio/Helena
+  ];
+  
+  if (window.chartInstance) {
+    window.chartInstance.destroy();
+  }
+  
+  const ctx = document.getElementById('chartContabil').getContext('2d');
+  window.chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Qtd. de Empresas',
+        data: data,
+        backgroundColor: bgColors,
+        borderColor: 'rgba(255,255,255,.4)',
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      onClick: (event, elements) => {
+        if (elements.length > 0) {
+          const index = elements[0].index;
+          const status = labels[index];
+          filterByStatus(status);
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255,255,255,.1)' },
+          ticks: { color: '#e0e0e0' },
+          title: { display: true, text: 'Quantidade de Empresas', color: '#6ee7ff' }
+        },
+        y: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#e0e0e0' } }
+      },
+      plugins: {
+        legend: { labels: { color: '#e0e0e0' } },
+        tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' empresas' } },
+        datalabels: {
+          color: '#ffffff',
+          font: { size: 16, weight: 'bold' },
+          anchor: 'end',
+          align: 'end',
+          offset: 8
+        }
+      }
+    },
+    plugins: [{
+      id: 'datalabels',
+      afterDatasetsDraw(chart) {
+        const { ctx: canvasCtx, data, chartArea: { left, top, width, height } } = chart;
+        canvasCtx.font = 'bold 16px Arial';
+        canvasCtx.fillStyle = '#ffffff';
+        canvasCtx.textAlign = 'right';
+        canvasCtx.textBaseline = 'middle';
+        
+        data.datasets.forEach((dataset, datasetIndex) => {
+          const meta = chart.getDatasetMeta(datasetIndex);
+          meta.data.forEach((bar, index) => {
+            const value = dataset.data[index];
+            const x = bar.x + 10;
+            const y = bar.y;
+            canvasCtx.fillText(value, x, y);
+          });
+        });
+      }
+    }]
+  });
+}
+
+// Filtra por status
+function filterByStatus(status) {
+  filteredStatus = filteredStatus === status ? null : status;
+  const filtered = filteredStatus ? allData.filter(d => d.status === filteredStatus) : allData;
+  renderTable(filtered);
+  
+  // Atualiza título para mostrar filtro ativo
+  const h1 = document.querySelector('h1');
+  if (filteredStatus) {
+    h1.textContent = `Contábil — Status: ${filteredStatus}`;
+  } else {
+    h1.textContent = 'Contábil — Status e Progresso';
+  }
+}
+
+// Carrega dados ao iniciar
+loadData();
+</script>
+</body>
+</html>

@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serviços Fiscal</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    h1 {
+      color: #6ee7ff;
+      text-shadow: 0 0 10px rgba(110,231,255,0.5);
+      font-size: 2.5em;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .section {
+      max-width: 1400px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .section-title {
+      color: #6ee7ff;
+      font-size: 1.8em;
+      margin-bottom: 30px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-bottom: 40px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 15px;
+      padding: 20px;
+      padding-bottom: 60px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.03);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 14px 16px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    th {
+      background: rgba(139,92,246,0.3);
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.9em;
+      font-weight: 600;
+    }
+    tbody tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    tbody tr:hover {
+      background: rgba(110,231,255,0.2);
+    }
+    tbody tr.selected {
+      background: rgba(110,231,255,0.3);
+    }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    td {
+      color: #d0e0ff;
+    }
+    td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+    .nav-buttons {
+      text-align: center;
+      margin: 30px 0;
+    }
+    a.voltar {
+      display: inline-block;
+      margin: 10px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      background: rgba(139,92,246,0.3);
+      color: #fff;
+      text-decoration: none;
+      transition: background 0.3s;
+      font-weight: 600;
+    }
+    a.voltar:hover {
+      background: rgba(139,92,246,0.5);
+    }
+    .filtros-mes {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .btn-filtro {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05);
+      color: #e0e0e0;
+      cursor: pointer;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-filtro:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(110,231,255,0.5);
+    }
+    .btn-filtro.active {
+      background: rgba(110,231,255,0.3);
+      border-color: rgba(110,231,255,1);
+      color: #fff;
+    }
+    .btn-filtro.cor-azul {
+      border-color: rgba(59,130,246,0.5);
+    }
+    .btn-filtro.cor-azul:hover,
+    .btn-filtro.cor-azul.active {
+      background: rgba(59,130,246,0.3);
+      border-color: rgba(59,130,246,1);
+    }
+    .btn-filtro.cor-verde {
+      border-color: rgba(34,197,94,0.5);
+    }
+    .btn-filtro.cor-verde:hover,
+    .btn-filtro.cor-verde.active {
+      background: rgba(34,197,94,0.3);
+      border-color: rgba(34,197,94,1);
+    }
+    .btn-filtro.cor-vermelho {
+      border-color: rgba(239,68,68,0.5);
+    }
+    .btn-filtro.cor-vermelho:hover,
+    .btn-filtro.cor-vermelho.active {
+      background: rgba(239,68,68,0.3);
+      border-color: rgba(239,68,68,1);
+    }
+    .btn-filtro.cor-amarelo {
+      border-color: rgba(245,158,11,0.5);
+    }
+    .btn-filtro.cor-amarelo:hover,
+    .btn-filtro.cor-amarelo.active {
+      background: rgba(245,158,11,0.3);
+      border-color: rgba(245,158,11,1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Serviços Fiscal</h1>
+  
+  <div class="nav-buttons">
+    <a href="setor-serviços.html" class="voltar">← Voltar para Setor Serviços</a>
+    <a href="home.html" class="voltar">← Voltar para Home</a>
+  </div>
+
+  <!-- SEÇÃO: SERVIÇOS SIMPLES -->
+  <div class="section">
+    <h2 class="section-title">Simples Nacional</h2>
+    
+    <div class="chart-container">
+      <canvas id="chartServicosSimples"></canvas>
+    </div>
+
+    <div class="filtros-mes">
+      <button class="btn-filtro active" data-mes="TODOS" onclick="filtrarPorMes('TODOS')">TODOS</button>
+      <button class="btn-filtro cor-azul" data-mes="JUNHO" onclick="filtrarPorMes('JUNHO')">JUNHO</button>
+      <button class="btn-filtro cor-verde" data-mes="JULHO" onclick="filtrarPorMes('JULHO')">JULHO</button>
+      <button class="btn-filtro cor-vermelho" data-mes="AGOSTO" onclick="filtrarPorMes('AGOSTO')">AGOSTO</button>
+      <button class="btn-filtro cor-amarelo" data-mes="SETEMBRO" onclick="filtrarPorMes('SETEMBRO')">SETEMBRO</button>
+    </div>
+
+    <table id="tableServicosSimples">
+      <thead>
+        <tr>
+          <th>Competência</th>
+          <th>Faixa de Entrega</th>
+          <th>% Empresas</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-servicos"></tbody>
+    </table>
+  </div>
+
+  <!-- SEÇÃO: LUCRO PRESUMIDO -->
+  <div class="section">
+    <h2 class="section-title">Lucro Presumido</h2>
+    
+    <div class="chart-container">
+      <canvas id="chartLucroPresumido"></canvas>
+    </div>
+
+    <div class="filtros-mes">
+      <button class="btn-filtro active" data-mes="TODOS" onclick="filtrarPorMesLucro('TODOS')">TODOS</button>
+      <button class="btn-filtro cor-azul" data-mes="JUNHO" onclick="filtrarPorMesLucro('JUNHO')">JUNHO</button>
+      <button class="btn-filtro cor-verde" data-mes="JULHO" onclick="filtrarPorMesLucro('JULHO')">JULHO</button>
+      <button class="btn-filtro cor-vermelho" data-mes="AGOSTO" onclick="filtrarPorMesLucro('AGOSTO')">AGOSTO</button>
+      <button class="btn-filtro cor-amarelo" data-mes="SETEMBRO" onclick="filtrarPorMesLucro('SETEMBRO')">SETEMBRO</button>
+    </div>
+
+    <table id="tableLucroPresumido">
+      <thead>
+        <tr>
+          <th>Competência</th>
+          <th>Faixa de Entrega</th>
+          <th>% Empresas</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-lucro"></tbody>
+    </table>
+  </div>
+
+  <script>
+    // ============================================
+    // SEÇÃO: SERVIÇOS SIMPLES
+    // ============================================
+
+    const dadosServicosSimples = [
+      { competencia: 'JUNHO', faixa: 'Até dia 05', percentual: 8.77 },
+      { competencia: 'JUNHO', faixa: 'Entre 06 e 10', percentual: 8.77 },
+      { competencia: 'JUNHO', faixa: 'Entre 11 e 15', percentual: 43.86 },
+      { competencia: 'JUNHO', faixa: 'Até dia 20', percentual: 38.6 },
+
+      { competencia: 'JULHO', faixa: 'Até dia 05', percentual: 0 },
+      { competencia: 'JULHO', faixa: 'Entre 06 e 10', percentual: 0 },
+      { competencia: 'JULHO', faixa: 'Entre 11 e 15', percentual: 56.9 },
+      { competencia: 'JULHO', faixa: 'Até dia 20', percentual: 43.1 },
+
+      { competencia: 'AGOSTO', faixa: 'Até dia 05', percentual: 98.28 },
+      { competencia: 'AGOSTO', faixa: 'Entre 06 e 10', percentual: 0 },
+      { competencia: 'AGOSTO', faixa: 'Entre 11 e 15', percentual: 0 },
+      { competencia: 'AGOSTO', faixa: 'Até dia 20', percentual: 1.72 },
+
+      { competencia: 'SETEMBRO', faixa: 'Até dia 05', percentual: 54 },
+      { competencia: 'SETEMBRO', faixa: 'Entre 06 e 10', percentual: 46 },
+      { competencia: 'SETEMBRO', faixa: 'Entre 11 e 15', percentual: 0 },
+      { competencia: 'SETEMBRO', faixa: 'Até dia 20', percentual: 0 }
+    ];
+
+    const tbodyServicos = document.getElementById('tbody-servicos');
+    let selectedBubbles = new Set();
+    let chartBubbleInstance = null;
+
+    // Cores por competência
+    const coresMeses = {
+      'JUNHO': { bg: 'rgba(59,130,246,0.6)', border: 'rgba(59,130,246,1)' },
+      'JULHO': { bg: 'rgba(34,197,94,0.6)', border: 'rgba(34,197,94,1)' },
+      'AGOSTO': { bg: 'rgba(239,68,68,0.6)', border: 'rgba(239,68,68,1)' },
+      'SETEMBRO': { bg: 'rgba(245,158,11,0.6)', border: 'rgba(245,158,11,1)' }
+    };
+
+    // Mapear faixas para valores numéricos no eixo X
+    const faixasMap = {
+      'Até dia 05': 5,
+      'Entre 06 e 10': 10,
+      'Entre 11 e 15': 15,
+      'Até dia 20': 20
+    };
+
+    // Preenche tabela
+    dadosServicosSimples.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.dataset.index = index;
+      tr.innerHTML = `
+        <td>${item.competencia}</td>
+        <td>${item.faixa}</td>
+        <td>${item.percentual}%</td>
+      `;
+      tr.addEventListener('click', () => toggleBubbleSelection(index));
+      tbodyServicos.appendChild(tr);
+    });
+
+    // Cria gráfico de linha evolutivo
+    function criarGraficoBolhas(selecionados = null) {
+      const ctx = document.getElementById('chartServicosSimples').getContext('2d');
+      
+      if (chartBubbleInstance) {
+        chartBubbleInstance.destroy();
+      }
+
+      const dadosParaMostrar = selecionados === null 
+        ? dadosServicosSimples 
+        : dadosServicosSimples.filter((_, idx) => selecionados.has(idx));
+
+      // Agrupa por mês para criar linhas evolutivas
+      const datasetsPorMes = {};
+      dadosParaMostrar.forEach(item => {
+        if (!datasetsPorMes[item.competencia]) {
+          datasetsPorMes[item.competencia] = {
+            'Até dia 05': 0,
+            'Entre 06 e 10': 0,
+            'Entre 11 e 15': 0,
+            'Até dia 20': 0
+          };
+        }
+        datasetsPorMes[item.competencia][item.faixa] = item.percentual;
+      });
+
+      const faixasOrdenadas = ['Até dia 05', 'Entre 06 e 10', 'Entre 11 e 15', 'Até dia 20'];
+      
+      const datasets = Object.keys(datasetsPorMes).map(mes => {
+        const dadosMes = faixasOrdenadas.map(faixa => datasetsPorMes[mes][faixa]);
+        
+        // Preenche com 0 até encontrar o primeiro valor real
+        let primeiroValorEncontrado = false;
+        const dadosAjustados = dadosMes.map(valor => {
+          if (valor > 0) {
+            primeiroValorEncontrado = true;
+          }
+          return primeiroValorEncontrado || valor > 0 ? valor : 0;
+        });
+
+        return {
+          label: mes,
+          data: dadosAjustados,
+          backgroundColor: coresMeses[mes].bg,
+          borderColor: coresMeses[mes].border,
+          borderWidth: 3,
+          tension: 0.3,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          fill: false,
+          spanGaps: false
+        };
+      });
+
+      chartBubbleInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: faixasOrdenadas,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'point',
+            intersect: true
+          },
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const datasetIndex = elements[0].datasetIndex;
+              const dataIndex = elements[0].index;
+              const mes = datasets[datasetIndex].label;
+              const faixa = faixasOrdenadas[dataIndex];
+              
+              // Encontra o índice original
+              const indexOriginal = dadosServicosSimples.findIndex(d => 
+                d.competencia === mes && d.faixa === faixa
+              );
+              
+              if (indexOriginal !== -1) {
+                toggleBubbleSelection(indexOriginal);
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#e0e0e0', font: { size: 12 } }
+            },
+            y: {
+              beginAtZero: true,
+              max: 110,
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              ticks: { 
+                color: '#e0e0e0',
+                callback: (value) => value + '%'
+              },
+              title: {
+                display: true,
+                text: '% Empresas',
+                color: '#6ee7ff',
+                font: { size: 14, weight: 'bold' }
+              }
+            }
+          },
+          plugins: {
+            legend: { 
+              labels: { 
+                color: '#e0e0e0',
+                font: { size: 13 },
+                padding: 15,
+                usePointStyle: true
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: 12,
+              titleColor: '#6ee7ff',
+              bodyColor: '#fff',
+              callbacks: {
+                label: (ctx) => {
+                  if (ctx.parsed.y === null) return null;
+                  return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + '%';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Toggle seleção de bolha
+    function toggleBubbleSelection(index) {
+      const rows = tbodyServicos.querySelectorAll('tr');
+      
+      if (selectedBubbles.has(index)) {
+        selectedBubbles.delete(index);
+        rows[index].classList.remove('selected');
+      } else {
+        selectedBubbles.add(index);
+        rows[index].classList.add('selected');
+      }
+
+      // Atualiza gráfico
+      if (selectedBubbles.size > 0) {
+        criarGraficoBolhas(selectedBubbles);
+      } else {
+        criarGraficoBolhas(null);
+      }
+    }
+
+    // Inicializa gráfico de bolhas
+    criarGraficoBolhas(null);
+
+    // Função de filtro por mês
+    let mesFiltroAtivo = 'TODOS';
+
+    function filtrarPorMes(mes) {
+      mesFiltroAtivo = mes;
+      
+      // Atualiza botões ativos - pega apenas os botões da segunda seção
+      const secaoServicos = document.querySelector('#tableServicosSimples').closest('.section');
+      const botoesFiltro = secaoServicos.querySelectorAll('.btn-filtro');
+      botoesFiltro.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.mes === mes) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Filtra linhas da tabela
+      const rows = tbodyServicos.querySelectorAll('tr');
+      rows.forEach(row => {
+        const competencia = row.children[0].textContent;
+        if (mes === 'TODOS' || competencia === mes) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Filtra gráfico
+      if (mes === 'TODOS') {
+        // Mostra todos os dados
+        criarGraficoBolhas(null);
+      } else {
+        // Filtra apenas os dados do mês selecionado
+        const indicesFiltrados = new Set();
+        dadosServicosSimples.forEach((item, index) => {
+          if (item.competencia === mes) {
+            indicesFiltrados.add(index);
+          }
+        });
+        criarGraficoBolhas(indicesFiltrados);
+      }
+
+      // Limpa seleções anteriores
+      selectedBubbles.clear();
+      rows.forEach(row => row.classList.remove('selected'));
+    }
+
+    // ============================================
+    // SEÇÃO: LUCRO PRESUMIDO
+    // ============================================
+
+    const dadosLucroPresumido = [
+      { competencia: 'JUNHO', faixa: 'Até dia 05', percentual: 27.27 },
+      { competencia: 'JUNHO', faixa: 'Entre 06 e 10', percentual: 63.64 },
+      { competencia: 'JUNHO', faixa: 'Entre 11 e 15', percentual: 0 },
+      { competencia: 'JUNHO', faixa: 'Até dia 20', percentual: 3.03 },
+
+      { competencia: 'JULHO', faixa: 'Até dia 05', percentual: 45.45 },
+      { competencia: 'JULHO', faixa: 'Entre 06 e 10', percentual: 33.33 },
+      { competencia: 'JULHO', faixa: 'Entre 11 e 15', percentual: 18.18 },
+      { competencia: 'JULHO', faixa: 'Até dia 20', percentual: 3.03 },
+
+      { competencia: 'AGOSTO', faixa: 'Até dia 05', percentual: 60.61 },
+      { competencia: 'AGOSTO', faixa: 'Entre 06 e 10', percentual: 30.3 },
+      { competencia: 'AGOSTO', faixa: 'Entre 11 e 15', percentual: 9.09 },
+      { competencia: 'AGOSTO', faixa: 'Até dia 20', percentual: 0 },
+
+      { competencia: 'SETEMBRO', faixa: 'Até dia 05', percentual: 100 },
+      { competencia: 'SETEMBRO', faixa: 'Entre 06 e 10', percentual: 0 },
+      { competencia: 'SETEMBRO', faixa: 'Entre 11 e 15', percentual: 0 },
+      { competencia: 'SETEMBRO', faixa: 'Até dia 20', percentual: 0 }
+    ];
+
+    const tbodyLucro = document.getElementById('tbody-lucro');
+    let selectedBubblesLucro = new Set();
+    let chartInstanceLucro = null;
+
+    // Preenche tabela Lucro Presumido
+    dadosLucroPresumido.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      tr.dataset.index = index;
+      tr.innerHTML = `
+        <td>${item.competencia}</td>
+        <td>${item.faixa}</td>
+        <td>${item.percentual.toFixed(2)}%</td>
+      `;
+      tr.addEventListener('click', () => toggleBubbleSelectionLucro(index));
+      tbodyLucro.appendChild(tr);
+    });
+
+    // Mapear faixas para valores numéricos no eixo X
+    const faixasMapLucro = {
+      'Até dia 05': 5,
+      'Entre 06 e 10': 10,
+      'Entre 11 e 15': 15,
+      'Até dia 20': 20
+    };
+
+    // Cores para cada mês
+    const coresMesesLucro = {
+      'JUNHO': 'rgba(59,130,246,0.7)',
+      'JULHO': 'rgba(34,197,94,0.7)',
+      'AGOSTO': 'rgba(239,68,68,0.7)',
+      'SETEMBRO': 'rgba(245,158,11,0.7)'
+    };
+
+    // Cria gráfico de linhas para Lucro Presumido
+    function criarGraficoBolhasLucro(linhasSelecionadas = null) {
+      const ctx = document.getElementById('chartLucroPresumido').getContext('2d');
+      
+      if (chartInstanceLucro) {
+        chartInstanceLucro.destroy();
+      }
+
+      const dadosParaMostrar = linhasSelecionadas === null 
+        ? dadosLucroPresumido 
+        : dadosLucroPresumido.filter((_, idx) => linhasSelecionadas.has(idx));
+
+      // Agrupar dados por mês
+      const datasetsPorMes = {};
+      dadosParaMostrar.forEach(item => {
+        if (!datasetsPorMes[item.competencia]) {
+          datasetsPorMes[item.competencia] = {
+            'Até dia 05': 0,
+            'Entre 06 e 10': 0,
+            'Entre 11 e 15': 0,
+            'Até dia 20': 0
+          };
+        }
+        datasetsPorMes[item.competencia][item.faixa] = item.percentual;
+      });
+
+      const faixasOrdenadasLucro = ['Até dia 05', 'Entre 06 e 10', 'Entre 11 e 15', 'Até dia 20'];
+      
+      const datasets = Object.keys(datasetsPorMes).map(mes => {
+        const dadosMes = faixasOrdenadasLucro.map(faixa => datasetsPorMes[mes][faixa]);
+        
+        return {
+          label: mes,
+          data: dadosMes,
+          borderColor: coresMesesLucro[mes],
+          backgroundColor: coresMesesLucro[mes],
+          borderWidth: 3,
+          tension: 0.4,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          fill: false
+        };
+      });
+
+      chartInstanceLucro = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: faixasOrdenadasLucro,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'point',
+            intersect: true
+          },
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const datasetIndex = elements[0].datasetIndex;
+              const dataIndex = elements[0].index;
+              const mesClicado = datasets[datasetIndex].label;
+              const faixaClicada = faixasOrdenadasLucro[dataIndex];
+              
+              const indexOriginal = dadosLucroPresumido.findIndex(
+                d => d.competencia === mesClicado && d.faixa === faixaClicada
+              );
+              
+              if (indexOriginal !== -1) {
+                toggleBubbleSelectionLucro(indexOriginal);
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.1)' },
+              ticks: { 
+                color: '#e0e0e0',
+                callback: (value) => value + '%'
+              },
+              title: {
+                display: true,
+                text: '% Empresas',
+                color: '#6ee7ff',
+                font: { size: 14, weight: 'bold' }
+              }
+            },
+            x: {
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: '#e0e0e0', font: { size: 12 } },
+              title: {
+                display: true,
+                text: 'Faixa de Entrega',
+                color: '#6ee7ff',
+                font: { size: 14, weight: 'bold' }
+              }
+            }
+          },
+          plugins: {
+            legend: { 
+              labels: { 
+                color: '#e0e0e0',
+                font: { size: 13 },
+                padding: 15,
+                usePointStyle: true
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: 12,
+              titleColor: '#6ee7ff',
+              bodyColor: '#fff',
+              callbacks: {
+                label: (ctx) => ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2) + '%'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Toggle seleção de linha Lucro Presumido
+    function toggleBubbleSelectionLucro(index) {
+      const rows = tbodyLucro.querySelectorAll('tr');
+      
+      if (selectedBubblesLucro.has(index)) {
+        selectedBubblesLucro.delete(index);
+        rows[index].classList.remove('selected');
+      } else {
+        selectedBubblesLucro.add(index);
+        rows[index].classList.add('selected');
+      }
+
+      if (selectedBubblesLucro.size > 0) {
+        criarGraficoBolhasLucro(selectedBubblesLucro);
+      } else {
+        criarGraficoBolhasLucro(null);
+      }
+    }
+
+    // Inicializa gráfico Lucro Presumido
+    criarGraficoBolhasLucro(null);
+
+    // Função de filtro por mês para Lucro Presumido
+    let mesFiltroAtivoLucro = 'TODOS';
+
+    function filtrarPorMesLucro(mes) {
+      mesFiltroAtivoLucro = mes;
+      
+      const secaoLucro = document.querySelector('#tableLucroPresumido').closest('.section');
+      const botoesFiltro = secaoLucro.querySelectorAll('.btn-filtro');
+      botoesFiltro.forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.mes === mes) {
+          btn.classList.add('active');
+        }
+      });
+
+      const rows = tbodyLucro.querySelectorAll('tr');
+      rows.forEach(row => {
+        const competencia = row.children[0].textContent;
+        if (mes === 'TODOS' || competencia === mes) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (mes === 'TODOS') {
+        criarGraficoBolhasLucro(null);
+      } else {
+        const indicesFiltrados = new Set();
+        dadosLucroPresumido.forEach((item, index) => {
+          if (item.competencia === mes) {
+            indicesFiltrados.add(index);
+          }
+        });
+        criarGraficoBolhasLucro(indicesFiltrados);
+      }
+
+      selectedBubblesLucro.clear();
+      rows.forEach(row => row.classList.remove('selected'));
+    }
+  </script>
+</body>
+</html>

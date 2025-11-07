@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+     
+    <meta charset="UTF-8">
+     
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Notas — Resumo e Detalhes</title>
+     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+      <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: #6ee7ff;
+            text-shadow: 0 0 10px rgba(110, 231, 255, .5);
+            text-align: center
+        }
+
+        a.voltar {
+            display: inline-block;
+            margin: 8px 0 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: rgba(139, 92, 246, .3);
+            color: #fff;
+            text-decoration: none
+        }
+
+        a.voltar:hover {
+            background: rgba(139, 92, 246, .5)
+        }
+
+        .charts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            width: 95%;
+            margin-top: 18px;
+            max-width: 1400px;
+        }
+
+        @media(max-width:960px) {
+            .charts {
+                grid-template-columns: 1fr
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, .05);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+            padding: 16px;
+            height: 340px
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            color: #d6e6ff;
+            text-align: center
+        }
+
+        table {
+            width: 95%;
+            border-collapse: collapse;
+            margin: 24px auto;
+            background: rgba(255, 255, 255, .05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .3);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer
+        }
+
+        th,
+        td {
+            padding: 10px 14px;
+            text-align: left
+        }
+
+        th {
+            background: rgba(139, 92, 246, .3);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: .6px
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, .03)
+        }
+
+        tbody tr {
+            transition: all .2s ease
+        }
+
+        tbody tr:hover {
+            background: rgba(110, 231, 255, .1);
+            transform: scale(1.01)
+        }
+
+        td {
+            color: #d0e0ff
+        }
+
+        tbody tr.selected {
+            background: rgba(110, 231, 255, .25) !important;
+            box-shadow: 0 0 15px rgba(110, 231, 255, .4);
+            transform: scale(1.02)
+        }
+
+        .categoria-col {
+            font-weight: 600;
+            font-size: 14px
+        }
+
+        .filtros-container {
+            width: fit-content;
+            max-width: 95%;
+            margin: 20px auto 10px;
+            background: rgba(255, 255, 255, .05);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, .3)
+        }
+
+        .filtro-grupo {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .filtro-grupo label {
+            color: #6ee7ff;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: .5px
+        }
+
+        .filtro-grupo select,
+        .filtro-grupo input {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid rgba(110, 231, 255, .3);
+            background: rgba(0, 0, 0, .3);
+            color: #e0e0e0;
+            font-size: 14px;
+            min-width: 180px;
+            transition: all .2s ease
+        }
+
+        .filtro-grupo select:focus,
+        .filtro-grupo input:focus {
+            outline: none;
+            border-color: rgba(110, 231, 255, .6);
+            box-shadow: 0 0 10px rgba(110, 231, 255, .2)
+        }
+
+        .filtro-grupo input[type="number"] {
+            min-width: 120px
+        }
+
+        .btn-limpar {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(239, 68, 68, .6);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s ease;
+            margin-top: 20px
+        }
+
+        .btn-limpar:hover {
+            background: rgba(239, 68, 68, .8);
+            transform: scale(1.05)
+        }
+
+        .contador-info {
+            color: #a5d8ff;
+            font-size: 13px;
+            margin-top: 4px
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Notas — Agosto e Setembro</h1>
+    <a href="home.html" class="voltar">← Voltar para Home</a>
+
+    <div class="charts">
+        <div class="card">
+            <h3>AGOSTO</h3><canvas id="chartAgosto"></canvas>
+        </div>
+        <div class="card">
+            <h3>SETEMBRO</h3><canvas id="chartSetembro"></canvas>
+        </div>
+    </div>
+
+    <div class="filtros-container">
+        <div class="filtro-grupo">
+            <label for="filtroMes">Filtrar por Mês</label>
+            <select id="filtroMes">
+                <option value="TODOS">Todos os Meses</option>
+                <option value="AGOSTO">Agosto</option>
+                <option value="SETEMBRO">Setembro</option>
+            </select>
+        </div>
+
+        <div class="filtro-grupo">
+            <label for="filtroQtde">Quantidade Mínima de Notas</label>
+            <input type="number" id="filtroQtde" min="1" placeholder="Ex: 5">
+            <span class="contador-info" id="contadorInfo">Mostrando todas as empresas</span>
+        </div>
+
+        <div class="filtro-grupo">
+            <button class="btn-limpar" onclick="limparFiltros()">Limpar Filtros</button>
+        </div>
+    </div>
+
+    <table id="tabela">
+        <thead>
+            <tr>
+                <th>Empresa</th>
+                <th>Categoria</th>
+                <th>Quantidade de Notas</th>
+                <th>Mês</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // CORREÇÃO APLICADA AQUI: "Sem acordo" (minúsculo) para bater com os dados.
+        const categorias = ['À vista', 'Cortesia', 'Debitar', 'Sem acordo', 'Tadeu H.'];
+
+        // Dados reais (extraídos da planilha) - quantidade de notas
+        const dados = [
+            { empresa: '887 - INFECTOLOGIU CONSULTORIA E ASSESSORIA MEDICA LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '967 - NOGAROLLI SOLUCOES ELETRICAS LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: 'Grando Prestadora ( Dirceu Grando)', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '917 - BR REPRESENTACOES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '948 - GP REPRESENTACAO E COMERCIO DE MAQUINAS E AUTOPECAS', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '757 - SERVIÇOS DE PINTURA PP', categoria: 'Debitar', mes: 'AGOSTO', qtde: 3 },
+            { empresa: '956 - SERGINHO VIOLAO E VOZ', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '919 - V2 GESTAO ADMINISTRATIVA LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '941 - TONIALVET SERVICOS VETERINARIOS LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8141 - TEREZINHA MARIA FROZZA PICININ', categoria: 'Debitar', mes: 'AGOSTO', qtde: 12 },
+            { empresa: '699 - EMILITUR TRANSPORTES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '488 - VIACAO FLORIDA LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '975 - JOAO ANDRE JARSCHEL', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '657 - BALBINOTI REPRESENTACOES COMERCIAIS LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '846 - FONTANA FONTANA REPRESENTACOES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '637 - COMERCIO DE CONFECÇÕES ESTAÇÃO LIVRE LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: 'Everton Olivo - BRmills', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '881 - MPS', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: 'Everton Olivo - BRmills', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '553 - COOTRATAN', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '948 - GP REPRESENTACAO E COMERCIO DE MAQUINAS E AUTOPECAS', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '881 - MPS', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8158 -ANTONIO RODRIGO BREDA', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '844 - M & M SERVICOS LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '836 - BLOCOSUL INDUSTRIA E COMERCIO DE ARTEFATOS DE CONCRETO LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '9830 - EDER GASPAR RAISER', categoria: 'À vista', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '967 - NOGAROLLI SOLUCOES ELETRICAS LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '870 - VANESSA HACK FISIOTERAPIA PILATES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 5 },
+            { empresa: '060 - COMERCIO E TRANSPORTE KASSIO LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8157 - ALCIR ROTTA', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '906 - PATRICIA SIMONE KASTELLER', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '948 - GP REPRESENTACAO E COMERCIO DE MAQUINAS E AUTOPECAS', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '836 - BLOCOSUL INDUSTRIA E COMERCIO DE ARTEFATOS DE CONCRETO LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: 'Josiane Deon', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '9830 - EDER GASPAR RAISER', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '870 - VANESSA HACK FISIOTERAPIA PILATES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 10 },
+            { empresa: '7988 - DOUGLAS FELIPE FATTORI', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 2 },
+            { empresa: 'Grando Prestadora ( Dirceu Grando)', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '1153- EDSON RISSI', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '836 - BLOCOSUL INDUSTRIA E COMERCIO DE ARTEFATOS DE CONCRETO LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8141 - TEREZINHA MARIA FROZZA PICININ', categoria: 'Debitar', mes: 'AGOSTO', qtde: 5 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '846 - FONTANA FONTANA REPRESENTACOES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '809 - JDM MECANICA INDUSTRIAL LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '951- MECANICA KBL LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '870 - VANESSA HACK FISIOTERAPIA PILATES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 5 },
+            { empresa: '948 - GP REPRESENTACAO E COMERCIO DE MAQUINAS E AUTOPECAS', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '941 - TONIALVET SERVICOS VETERINARIOS LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '809 - JDM MECANICA INDUSTRIAL LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '804 - SCORTEGANHA ALBERTI ESCAVAÇÕES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '060 - COMERCIO E TRANSPORTE KASSIO LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '948 - GP REPRESENTACAO E COMERCIO DE MAQUINAS E AUTOPECAS', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '948 - GP REPRESENTACAO E COMERCIO DE MAQUINAS E AUTOPECAS', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '836 - BLOCOSUL INDUSTRIA E COMERCIO DE ARTEFATOS DE CONCRETO LTDA', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: 'SIRLEI ANDRES ( ADRIANO ANDRES)', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8141 - TEREZINHA MARIA FROZZA PICININ', categoria: 'Debitar', mes: 'AGOSTO', qtde: 5 },
+            { empresa: '956 - SERGINHO VIOLAO E VOZ', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '906 - PATRICIA SIMONE KASTELLER', categoria: 'Debitar', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8165 - DANIELA COMACHIO TANELLO SCORTEGAGNA', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '921 - KERN TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '886 - PELENTIR TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '844 - M & M SERVICOS LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '881 - MPS', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8108 - BARBARA ZANOTTO FRANCINO DE OLIVEIRA COMACHIO', categoria: 'À vista', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '9845 - NELSON JOSE SOUTHIER', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '870 - VANESSA HACK FISIOTERAPIA PILATES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 13 },
+            { empresa: '9837 - GILSO DALZOTTO GEMO', categoria: 'À vista', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '883 - IFG TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '969 - GALARDÃO ASSESSORIA TÉCNICA E TREINAMENTOS LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '985 - C & T TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '906 - PATRICIA SIMONE KASTELLER', categoria: 'Debitar', mes: 'AGOSTO', qtde: 5 },
+            { empresa: '870 - VANESSA HACK FISIOTERAPIA PILATES LTDA', categoria: 'Cortesia', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '9984 - SIMONE PITOL', categoria: 'Sem acordo', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '8109 - CARMEM RHODEN CANTELLI', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '906 - PATRICIA SIMONE KASTELLER', categoria: 'Debitar', mes: 'AGOSTO', qtde: 2 },
+            { empresa: '8108 - BARBARA ZANOTTO FRANCINO DE OLIVEIRA COMACHIO', categoria: 'À vista', mes: 'AGOSTO', qtde: 1 },
+            { empresa: '563 - VINICOLA DOM VICTORIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 3 },
+            { empresa: '919 - V2 GESTAO ADMINISTRATIVA LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '563 - VINICOLA DOM VICTORIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: 'Grando Prestadora ( Dirceu Grando)', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: 'Everton Olivo - BRmills', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '919 - V2 GESTAO ADMINISTRATIVA LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '726 - NETOS NEGOCIOS ADMINISTRATIVOS', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '917 - BR REPRESENTACOES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '8083 - CAROLINA FERNANDES DE FRANÇA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '794 - ANDERSON CRISTIANO NARDI SOCIEDADE INDIVIDUAL DE ADVOCACIA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '060 - COMERCIO E TRANSPORTE KASSIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '699 - EMILITUR TRANSPORTES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '488 - VIACAO FLORIDA LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '592 - MR PERGHER', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '757 - SERVIÇOS DE PINTURA PP', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 2 },
+            { empresa: '9830 - EDER GASPAR RAISER', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '906 - PATRICIA SIMONE KASTELLER', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: 'PAULA EBELING', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '563 - VINICOLA DOM VICTORIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '657 - BALBINOTI REPRESENTACOES COMERCIAIS LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 2 },
+            { empresa: '919 - V2 GESTAO ADMINISTRATIVA LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '975 - JOAO ANDRE JARSCHEL', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '941 - TONIALVET SERVICOS VETERINARIOS LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 3 },
+            { empresa: '846 - FONTANA FONTANA REPRESENTACOES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: 'Grando Prestadora ( Dirceu Grando)', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '8157 - ALCIR ROTTA', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '967 - NOGAROLLI SOLUCOES ELETRICAS LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '060 - COMERCIO E TRANSPORTE KASSIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '941 - TONIALVET SERVICOS VETERINARIOS LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '870 - VANESSA HACK FISIOTERAPIA PILATES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 14 },
+            { empresa: '941 - TONIALVET SERVICOS VETERINARIOS LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '906 - PATRICIA SIMONE KASTELLER', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '8158 -ANTONIO RODRIGO BREDA', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '836 - BLOCOSUL INDUSTRIA E COMERCIO DE ARTEFATOS DE CONCRETO LTDA', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '8141 - TEREZINHA MARIA FROZZA PICININ', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 5 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 3 },
+            { empresa: 'Dirceu Candido Thibes', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 2 },
+            { empresa: '881 - MPS', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '941 - TONIALVET SERVICOS VETERINARIOS LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '917 - BR REPRESENTACOES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: 'Everton Olivo - BRmills', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '846 - FONTANA FONTANA REPRESENTACOES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '060 - COMERCIO E TRANSPORTE KASSIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 3 },
+            { empresa: 'Grando Prestadora ( Dirceu Grando)', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '9984 - SIMONE PITOL', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '870 - VANESSA HACK FISIOTERAPIA PILATES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 9 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '757 - SERVIÇOS DE PINTURA PP', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '930 - TONIAL BIKE LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 2 },
+            { empresa: '699 - EMILITUR TRANSPORTES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '985 - C & T TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '8141 - TEREZINHA MARIA FROZZA PICININ', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 5 },
+            { empresa: '844 - M & M SERVICOS LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '910 - BRAVO TERRAPLANAGEM LTDA', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '809 - JDM MECANICA INDUSTRIAL LTDA', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '951- MECANICA KBL LTDA', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: 'Everton Olivo - BRmills', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '957 - POUSADA RANCHO MOINHO VELHO', categoria: 'Tadeu H.', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '844 - M & M SERVICOS LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '060 - COMERCIO E TRANSPORTE KASSIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '804 - SCORTEGANHA ALBERTI ESCAVAÇÕES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '998 - Zulma Bonassi Rampon', categoria: 'À vista', mes: 'SETEMBRO', qtde: 2 },
+            { empresa: '1048 - Marilse Salete de Costa Denardi', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '764 - COMERCIO BG LTDA', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 10 },
+            { empresa: '9936 - SIDERVAN BENDER ANDRES', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '844 - M & M SERVICOS LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '906 - PATRICIA SIMONE KASTELLER', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 7 },
+            { empresa: '060 - COMERCIO E TRANSPORTE KASSIO LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '956 - SERGINHO VIOLAO E VOZ', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '488 - VIACAO FLORIDA LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '699 - EMILITUR TRANSPORTES LTDA', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '592 - MR PERGHER', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '921 - KERN TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '886 - PELENTIR TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '8189 - IVAN FELICETTI', categoria: 'Debitar', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '883 - IFG TRANSPORTES LTDA', categoria: 'Sem acordo', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '553 - COOTRATAN', categoria: 'Cortesia', mes: 'SETEMBRO', qtde: 1 },
+            { empresa: '8108 - BARBARA ZANOTTO FRANCINO DE OLIVEIRA COMACHIO', categoria: 'À vista', mes: 'SETEMBRO', qtde: 1 }
+        ];
+
+        let categoriaSelecionada = null;
+        let empresaSelecionada = null;
+
+        // Cores para cada tipo de acordo
+        const coresCategorias = [
+            'rgba(59,130,246,0.8)',   // À vista - Azul
+            'rgba(34,197,94,0.8)',    // Cortesia - Verde
+            'rgba(239,68,68,0.8)',    // Debitar - Vermelho
+            'rgba(234,179,8,0.8)',    // Sem acordo - Amarelo
+            'rgba(139,92,246,0.8)'    // Tadeu H. - Roxo
+        ];
+
+        const coresCategoriasMap = {
+            'À vista': 'rgba(59,130,246,0.8)',
+            'Cortesia': 'rgba(34,197,94,0.8)',
+            'Debitar': 'rgba(239,68,68,0.8)',
+            'Sem acordo': 'rgba(234,179,8,0.8)',
+            'Tadeu H.': 'rgba(139,92,246,0.8)'
+        };
+
+        // Agrupamento inicial por categoria e mês
+        function agruparPorCategoria(mes, filtroEmpresa = null) {
+            const filtro = filtroEmpresa ? dados.filter(d => d.mes === mes && d.empresa === filtroEmpresa) : dados.filter(d => d.mes === mes);
+            return categorias.map(cat => filtro.filter(d => d.categoria === cat).reduce((s, d) => s + d.qtde, 0));
+        }
+
+        // Função para destacar categoria no gráfico
+        function destacarCategoriaGrafico(categoria) {
+            const index = categorias.indexOf(categoria);
+            if (index === -1) return;
+
+            // Atualizar opacidade das barras
+            [chartAgosto, chartSetembro].forEach(chart => {
+                chart.data.datasets[0].backgroundColor = categorias.map((cat, i) => {
+                    const cor = coresCategorias[i];
+                    return i === index ? cor : cor.replace('0.8', '0.3');
+                });
+                chart.update();
+            });
+        }
+
+        // Função para resetar destaque do gráfico
+        function resetarDestaqueGrafico() {
+            [chartAgosto, chartSetembro].forEach(chart => {
+                chart.data.datasets[0].backgroundColor = coresCategorias;
+                chart.update();
+            });
+        }
+
+        // Registra o plugin datalabels
+        Chart.register(ChartDataLabels);
+
+        const ctxAgosto = document.getElementById('chartAgosto').getContext('2d');
+        const ctxSetembro = document.getElementById('chartSetembro').getContext('2d');
+
+        let chartAgosto = new Chart(ctxAgosto, {
+            type: 'bar',
+            data: { labels: categorias, datasets: [{ label: 'Agosto (qtde)', data: agruparPorCategoria('AGOSTO'), backgroundColor: coresCategorias }] },
+            options: { 
+                indexAxis: 'y', 
+                responsive: true, 
+                maintainAspectRatio: false,
+                onClick: (e, activeEls) => {
+                    if (activeEls.length > 0) {
+                        const index = activeEls[0].index;
+                        const categoria = categorias[index];
+                        selecionarCategoria(categoria);
+                    }
+                },
+                scales: { 
+                    x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.1)' }, ticks: { color: '#e0e0e0', callback: (v) => v + ' notas' } }, 
+                    y: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#e0e0e0' } } 
+                }, 
+                plugins: { 
+                    tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.parsed.x + ' notas' } }, 
+                    datalabels: { anchor: 'end', align: 'end', color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (value) => value > 0 ? value : '' } 
+                } 
+            }
+        });
+
+        let chartSetembro = new Chart(ctxSetembro, {
+            type: 'bar',
+            data: { labels: categorias, datasets: [{ label: 'Setembro (qtde)', data: agruparPorCategoria('SETEMBRO'), backgroundColor: coresCategorias }] },
+            options: { 
+                indexAxis: 'y', 
+                responsive: true, 
+                maintainAspectRatio: false,
+                onClick: (e, activeEls) => {
+                    if (activeEls.length > 0) {
+                        const index = activeEls[0].index;
+                        const categoria = categorias[index];
+                        selecionarCategoria(categoria);
+                    }
+                },
+                scales: { 
+                    x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.1)' }, ticks: { color: '#e0e0e0', callback: (v) => v + ' notas' } }, 
+                    y: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#e0e0e0' } } 
+                }, 
+                plugins: { 
+                    tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.parsed.x + ' notas' } }, 
+                    datalabels: { anchor: 'end', align: 'end', color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (value) => value > 0 ? value : '' } 
+                } 
+            }
+        });
+
+        // Preenche tabela com dados por empresa
+        const tbody = document.querySelector('#tabela tbody');
+
+        // Agrupa dados por empresa para mostrar total
+        const empresasMap = new Map();
+        dados.forEach(d => {
+            const key = `${d.empresa}_${d.mes}`;
+            if (!empresasMap.has(key)) {
+                empresasMap.set(key, { empresa: d.empresa, categoria: d.categoria, mes: d.mes, qtde: 0 });
+            }
+            empresasMap.get(key).qtde += d.qtde;
+        });
+
+        const empresasArray = Array.from(empresasMap.values());
+        let empresasArrayOriginal = [...empresasArray]; // Cópia para filtros
+
+        function renderizarTabela(empresasFiltradas = empresasArray) {
+            tbody.innerHTML = '';
+            
+            empresasFiltradas.forEach(d => {renderizarLinha(d);});
+            
+            // Atualizar contador
+            const contadorInfo = document.getElementById('contadorInfo');
+            if (empresasFiltradas.length === empresasArray.length) {
+                contadorInfo.textContent = `Mostrando todas as ${empresasArray.length} empresas`;
+            } else {
+                contadorInfo.textContent = `Mostrando ${empresasFiltradas.length} de ${empresasArray.length} empresas`;
+            }
+        }
+
+        function renderizarLinha(d) {
+            const tr = document.createElement('tr');
+            tr.dataset.categoria = d.categoria;
+            tr.dataset.empresa = d.empresa;
+            
+            const cor = coresCategoriasMap[d.categoria];
+            tr.innerHTML = `
+                <td>${d.empresa}</td>
+                <td class="categoria-col" style="color: ${cor}">${d.categoria}</td>
+                <td>${d.qtde} notas</td>
+                <td>${d.mes}</td>
+            `;
+
+            tr.addEventListener('click', () => {
+                // Se clicar na mesma empresa, desmarca e volta ao estado inicial
+                if (empresaSelecionada === d.empresa) {
+                    document.querySelectorAll('#tabela tbody tr').forEach(r => r.classList.remove('selected'));
+                    empresaSelecionada = null;
+                    categoriaSelecionada = null;
+                    atualizarGraficos(null);
+                    resetarDestaqueGrafico();
+                } else {
+                    // Marca nova empresa
+                    document.querySelectorAll('#tabela tbody tr').forEach(r => r.classList.remove('selected'));
+                    tr.classList.add('selected');
+                    empresaSelecionada = d.empresa;
+                    categoriaSelecionada = null;
+                    atualizarGraficos(d.empresa);
+                    resetarDestaqueGrafico();
+                }
+            });
+            tbody.appendChild(tr);
+        }
+
+        // Renderizar tabela inicial
+        renderizarTabela();
+
+        // Filtros
+        const filtroMes = document.getElementById('filtroMes');
+        const filtroQtde = document.getElementById('filtroQtde');
+
+        function aplicarFiltros() {
+            let empresasFiltradas = [...empresasArrayOriginal];
+
+            // Filtro por mês
+            const mesSelecionado = filtroMes.value;
+            if (mesSelecionado !== 'TODOS') {
+                empresasFiltradas = empresasFiltradas.filter(e => e.mes === mesSelecionado);
+            }
+
+            // Filtro por quantidade
+            const qtdeMinima = parseInt(filtroQtde.value);
+            if (!isNaN(qtdeMinima) && qtdeMinima > 0) {
+                empresasFiltradas = empresasFiltradas.filter(e => e.qtde >= qtdeMinima);
+            }
+
+            renderizarTabela(empresasFiltradas);
+        }
+
+        filtroMes.addEventListener('change', aplicarFiltros);
+        filtroQtde.addEventListener('input', aplicarFiltros);
+
+        function limparFiltros() {
+            filtroMes.value = 'TODOS';
+            filtroQtde.value = '';
+            aplicarFiltros();
+        }
+
+        // Atualiza gráficos conforme empresa selecionada
+        function atualizarGraficos(empresa) {
+            chartAgosto.data.datasets[0].data = agruparPorCategoria('AGOSTO', empresa);
+            chartSetembro.data.datasets[0].data = agruparPorCategoria('SETEMBRO', empresa);
+            chartAgosto.update();
+            chartSetembro.update();
+        }
+
+        // Função para selecionar categoria ao clicar no gráfico
+        function selecionarCategoria(categoria) {
+            if (categoriaSelecionada === categoria) {
+                // Desselecionar
+                categoriaSelecionada = null;
+                empresaSelecionada = null;
+                document.querySelectorAll('#tabela tbody tr').forEach(r => r.classList.remove('selected'));
+                resetarDestaqueGrafico();
+            } else {
+                // Selecionar nova categoria - destaca linhas da tabela com essa categoria
+                categoriaSelecionada = categoria;
+                empresaSelecionada = null;
+                document.querySelectorAll('#tabela tbody tr').forEach(r => {
+                    if (r.dataset.categoria === categoria) {
+                        r.classList.add('selected');
+                    } else {
+                        r.classList.remove('selected');
+                    }
+                });
+                destacarCategoriaGrafico(categoria);
+            }
+        }
+    </script>
+</body>
+
+</html>

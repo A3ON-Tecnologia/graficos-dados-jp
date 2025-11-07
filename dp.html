@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Departamento Pessoal — Indicadores Mensais</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-top: 20px;
+      color: #6ee7ff;
+      text-shadow: 0 0 10px rgba(110,231,255,0.5);
+      text-align: center;
+    }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(340px, 1fr));
+      gap: 24px;
+      width: 95%;
+      margin-top: 30px;
+    }
+    @media (max-width: 900px){
+      .chart-grid{ grid-template-columns: 1fr; }
+    }
+    .chart-box {
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      padding: 18px;
+      height: 320px;
+    }
+    .chart-box.full { grid-column: 1 / -1; height: 360px; }
+    .chart-title { margin: 0 0 10px; font-weight: 600; color: #d6e6ff; }
+    table {
+      width: 95%;
+      border-collapse: collapse;
+      margin: 36px auto 48px;
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td { padding: 10px 14px; text-align: center; }
+    th { background: rgba(139,92,246,0.3); color: #fff; text-transform: uppercase; letter-spacing: 1px; }
+    tr:nth-child(even){ background: rgba(255,255,255,0.03); }
+    tr:hover{ background: rgba(110,231,255,0.1); }
+    td{ color:#d0e0ff; }
+    a.voltar{ display:inline-block; margin:20px; padding:10px 16px; border-radius:10px; background:rgba(139,92,246,0.3); color:#fff; text-decoration:none; }
+    a.voltar:hover{ background:rgba(139,92,246,0.5); }
+  </style>
+</head>
+<body>
+  <h1>Departamento Pessoal — Indicadores Mensais</h1>
+  <a href="home.html" class="voltar">← Voltar para Home</a>
+
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3 class="chart-title">Admissões</h3>
+      <canvas id="chartAdmissoes"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3 class="chart-title">Demissões</h3>
+      <canvas id="chartDemissoes"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3 class="chart-title">Férias</h3>
+      <canvas id="chartFerias"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3 class="chart-title">Pró Labores</h3>
+      <canvas id="chartProLabores"></canvas>
+    </div>
+    <div class="chart-box full">
+      <h3 class="chart-title">Folhas de Pagamento</h3>
+      <canvas id="chartFolhas"></canvas>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Departamento Pessoal</th>
+        <th>Mês</th>
+        <th>Quantidade</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr data-dept="Admissões"><td>Admissões</td><td>06 - JUNHO</td><td>79</td></tr>
+      <tr data-dept="Admissões"><td>Admissões</td><td>07 - JULHO</td><td>117</td></tr>
+      <tr data-dept="Admissões"><td>Admissões</td><td>08 - AGOSTO</td><td>127</td></tr>
+      <tr data-dept="Admissões"><td>Admissões</td><td>09 - SETEMBRO</td><td>102</td></tr>
+
+      <tr data-dept="Demissões"><td>Demissões</td><td>06 - JUNHO</td><td>107</td></tr>
+      <tr data-dept="Demissões"><td>Demissões</td><td>07 - JULHO</td><td>106</td></tr>
+      <tr data-dept="Demissões"><td>Demissões</td><td>08 - AGOSTO</td><td>119</td></tr>
+      <tr data-dept="Demissões"><td>Demissões</td><td>09 - SETEMBRO</td><td>92</td></tr>
+
+      <tr data-dept="Férias"><td>Férias</td><td>06 - JUNHO</td><td>34</td></tr>
+      <tr data-dept="Férias"><td>Férias</td><td>07 - JULHO</td><td>46</td></tr>
+      <tr data-dept="Férias"><td>Férias</td><td>08 - AGOSTO</td><td>20</td></tr>
+      <tr data-dept="Férias"><td>Férias</td><td>09 - SETEMBRO</td><td>24</td></tr>
+
+      <tr data-dept="Pró Labores"><td>Pró Labores</td><td>06 - JUNHO</td><td>275</td></tr>
+      <tr data-dept="Pró Labores"><td>Pró Labores</td><td>07 - JULHO</td><td>274</td></tr>
+      <tr data-dept="Pró Labores"><td>Pró Labores</td><td>08 - AGOSTO</td><td>272</td></tr>
+      <tr data-dept="Pró Labores"><td>Pró Labores</td><td>09 - SETEMBRO</td><td>271</td></tr>
+
+      <tr data-dept="Folhas de Pagamento"><td>Folhas de Pagamento</td><td>06 - JUNHO</td><td>1564</td></tr>
+      <tr data-dept="Folhas de Pagamento"><td>Folhas de Pagamento</td><td>07 - JULHO</td><td>1576</td></tr>
+      <tr data-dept="Folhas de Pagamento"><td>Folhas de Pagamento</td><td>08 - AGOSTO</td><td>1706</td></tr>
+      <tr data-dept="Folhas de Pagamento"><td>Folhas de Pagamento</td><td>09 - SETEMBRO</td><td>1562</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const MESES = ['06 - JUNHO','07 - JULHO','08 - AGOSTO','09 - SETEMBRO'];
+    let filtroAtivo = null;
+
+    const series = {
+      'Admissões':      { cor: 'rgba(59,130,246,0.9)', valores: [79, 117, 127, 102] },
+      'Demissões':      { cor: 'rgba(239,68,68,0.9)', valores: [107, 106, 119, 92] },
+      'Férias':         { cor: 'rgba(34,197,94,0.9)', valores: [34, 46, 20, 24] },
+      'Pró Labores':    { cor: 'rgba(234,179,8,0.9)', valores: [275, 274, 272, 271] },
+      'Folhas de Pagamento': { cor: 'rgba(139,92,246,0.9)', valores: [1564, 1576, 1706, 1562] }
+    };
+
+    // Função para filtrar tabela
+    function filtrarTabela(departamento) {
+      const rows = document.querySelectorAll('#tableBody tr');
+      const h1 = document.querySelector('h1');
+      
+      if (filtroAtivo === departamento) {
+        // Remove filtro se clicar no mesmo departamento
+        filtroAtivo = null;
+        rows.forEach(row => row.style.display = '');
+        h1.textContent = 'Departamento Pessoal — Indicadores Mensais';
+      } else {
+        // Aplica filtro
+        filtroAtivo = departamento;
+        rows.forEach(row => {
+          if (row.dataset.dept === departamento) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+        h1.textContent = `Departamento Pessoal — ${departamento}`;
+      }
+    }
+
+    function criarGraficoLinha(canvasId, label, serie){
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: MESES,
+          datasets: [{
+            label: label,
+            data: serie.valores,
+            borderColor: serie.cor,
+            backgroundColor: serie.cor.replace('0.9', '0.3'),
+            borderWidth: 2.5,
+            tension: 0.3,
+            fill: true,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            pointBackgroundColor: '#fff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (event, elements) => {
+            // Ao clicar no gráfico, filtra a tabela
+            if (elements.length > 0) {
+              filtrarTabela(label);
+            }
+          },
+          scales: {
+            y: { beginAtZero: true, ticks: { color:'#e0e0e0' }, grid: { color:'rgba(255,255,255,0.1)' } },
+            x: { ticks: { color:'#e0e0e0' }, grid: { color:'rgba(255,255,255,0.05)' } }
+          },
+          plugins: {
+            legend: { labels: { color:'#e0e0e0' } },
+            tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y } }
+          }
+        },
+        plugins: [{
+          id: 'datalabels',
+          afterDatasetsDraw(chart) {
+            const { ctx: canvasCtx, data } = chart;
+            canvasCtx.font = 'bold 12px Arial';
+            canvasCtx.fillStyle = '#ffffff';
+            canvasCtx.textAlign = 'center';
+            canvasCtx.textBaseline = 'bottom';
+            
+            data.datasets.forEach((dataset, datasetIndex) => {
+              const meta = chart.getDatasetMeta(datasetIndex);
+              meta.data.forEach((point, index) => {
+                const value = dataset.data[index];
+                const x = point.x;
+                const y = point.y - 8;
+                canvasCtx.fillText(value, x, y);
+              });
+            });
+          }
+        }]
+      });
+    }
+
+    // Adiciona cursor pointer nos gráficos
+    document.querySelectorAll('canvas').forEach(canvas => {
+      canvas.style.cursor = 'pointer';
+    });
+
+    criarGraficoLinha('chartAdmissoes','Admissões',series['Admissões']);
+    criarGraficoLinha('chartDemissoes','Demissões',series['Demissões']);
+    criarGraficoLinha('chartFerias','Férias',series['Férias']);
+    criarGraficoLinha('chartProLabores','Pró Labores',series['Pró Labores']);
+    criarGraficoLinha('chartFolhas','Folhas de Pagamento',series['Folhas de Pagamento']);
+    
+  </script>
+</body>
+</html>
