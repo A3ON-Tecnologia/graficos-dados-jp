@@ -1,233 +1,271 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Colaboradores — Agosto x Setembro</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
-      color: #e0e0e0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-    h1 {
-      margin-top: 20px;
-      color: #6ee7ff;
-      text-shadow: 0 0 10px rgba(110,231,255,0.5);
-      font-size: 2em;
-      text-align: center;
-    }
-    .chart-container {
-      position: relative;
-      width: 90%;
-      height: 70vh;
-      margin-top: 30px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-      padding: 20px;
-    }
-    table {
-      width: 90%;
-      border-collapse: collapse;
-      margin: 40px auto;
-      background: rgba(255,255,255,0.05);
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px 16px;
-      text-align: center;
-    }
-    th {
-      background: rgba(139,92,246,0.3);
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-size: 0.9em;
-    }
-    tr:nth-child(even) {
-      background: rgba(255,255,255,0.03);
-    }
-    tbody tr {
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    tbody tr:hover {
-      background: rgba(110,231,255,0.2);
-    }
-    tbody tr.selected {
-      background: rgba(110,231,255,0.3);
-    }
-    td {
-      color: #d0e0ff;
-    }
-    a.voltar {
-      display:inline-block;
-      margin:20px;
-      padding:10px 16px;
-      border-radius:10px;
-      background:rgba(139,92,246,0.3);
-      color:#fff;
-      text-decoration:none;
-      transition:background 0.3s;
-    }
-    a.voltar:hover{background:rgba(139,92,246,0.5);}
-  </style>
-</head>
-<body>
-  <h1>Colaboradores — Agosto x Setembro</h1>
-  <a href="index.html" class="voltar">← Voltar para Home</a>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Colaboradores — Agosto x Setembro</title>
 
-  <div class="chart-container">
-    <canvas id="colabChart"></canvas>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Setor</th>
-        <th>Agosto</th>
-        <th>Setembro</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-body"></tbody>
-  </table>
-
-  <script>
-    const dados = [
-      { setor: 'A3ON Tecnologia', agosto: 1, setembro: 1 },
-      { setor: 'Administrativo', agosto: 5, setembro: 5 },
-      { setor: 'Contábil', agosto: 6, setembro: 6 },
-      { setor: 'Depto. Pessoal', agosto: 5, setembro: 5 },
-      { setor: 'Fiscal', agosto: 6, setembro: 6 },
-      { setor: 'Serviços', agosto: 2, setembro: 2 },
-      { setor: 'Serviços Gerais', agosto: 1, setembro: 1 },
-      { setor: 'Simples Nac.', agosto: 3, setembro: 3 }
-    ];
-
-    // Registra o plugin datalabels
-    Chart.register(ChartDataLabels);
-
-    // Tabela
-    const tbody = document.getElementById('tabela-body');
-    let selectedRows = new Set();
-    let selectedData = [];
-
-    dados.forEach((d, index) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${d.setor}</td>
-        <td>${d.agosto}</td>
-        <td>${d.setembro}</td>
-      `;
-      tr.dataset.index = index;
-      tr.addEventListener('click', () => toggleSelection(d, tr, index));
-      tbody.appendChild(tr);
-    });
-
-    // Gráfico
-    const ctx = document.getElementById('colabChart').getContext('2d');
-    let chartInstance = null;
-
-    function criarGrafico(dadosGrafico) {
-      const setores = dadosGrafico.map(d => d.setor);
-      const agosto = dadosGrafico.map(d => d.agosto);
-      const setembro = dadosGrafico.map(d => d.setembro);
-
-      if (chartInstance) {
-        chartInstance.destroy();
-      }
-
-      chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: setores,
-          datasets: [
-            {
-              label: 'Agosto',
-              data: agosto,
-              backgroundColor: 'rgba(110,231,255,0.7)',
-              borderColor: 'rgba(110,231,255,1)',
-              borderWidth: 1.5
-            },
-            {
-              label: 'Setembro',
-              data: setembro,
-              backgroundColor: 'rgba(139,92,246,0.7)',
-              borderColor: 'rgba(139,92,246,1)',
-              borderWidth: 1.5
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: { color: 'rgba(255,255,255,0.1)' },
-              ticks: { color: '#e0e0e0' },
-              title: {
-                display: true,
-                text: 'Quantidade de Colaboradores',
-                color: '#6ee7ff'
-              }
-            },
-            x: {
-              grid: { color: 'rgba(255,255,255,0.05)' },
-              ticks: { color: '#e0e0e0' }
-            }
-          },
-          plugins: {
-            legend: { labels: { color: '#e0e0e0' } },
-            tooltip: {
-              callbacks: {
-                label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y
-              }
-            },
-            datalabels: {
-              anchor: 'end',
-              align: 'end',
-              color: '#fff',
-              font: { weight: 'bold', size: 12 },
-              formatter: (value) => value
-            }
-          }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
-      });
-    }
 
-    function toggleSelection(setor, row, index) {
-      // Toggle seleção
-      if (selectedRows.has(index)) {
-        selectedRows.delete(index);
-        row.classList.remove('selected');
-        selectedData = selectedData.filter(d => d.setor !== setor.setor);
-      } else {
-        selectedRows.add(index);
-        row.classList.add('selected');
-        selectedData.push(setor);
-      }
+        h1 {
+            margin-top: 20px;
+            color: #6ee7ff;
+            text-shadow: 0 0 10px rgba(110, 231, 255, 0.5);
+            font-size: 2em;
+            text-align: center;
+        }
 
-      // Atualiza gráfico: se nada selecionado, mostra todos; senão mostra apenas selecionados
-      if (selectedData.length > 0) {
-        criarGrafico(selectedData);
-      } else {
+        .chart-container {
+            position: relative;
+            width: 90%;
+            height: 70vh;
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            padding: 20px;
+        }
+
+        table {
+            width: 90%;
+            border-collapse: collapse;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 12px 16px;
+            /* Garante que o texto fique centralizado */
+            text-align: center;
+        }
+
+        th {
+            background: rgba(139, 92, 246, 0.3);
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9em;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(110, 231, 255, 0.2);
+        }
+
+        tbody tr.selected {
+            background: rgba(110, 231, 255, 0.3);
+        }
+
+        td {
+            color: #d0e0ff;
+        }
+
+        a.voltar {
+            display: inline-block;
+            margin: 20px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            background: rgba(139, 92, 246, 0.3);
+            color: #fff;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+
+        a.voltar:hover {
+            background: rgba(139, 92, 246, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Colaboradores — Agosto x Setembro</h1>
+    <a href="index.html" class="voltar">← Voltar para Home</a>
+
+    <div class="chart-container">
+        <canvas id="colabChart"></canvas>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Setor</th>
+                <th>Agosto</th>
+                <th>Setembro</th>
+            </tr>
+        </thead>
+        <tbody id="tabela-body"></tbody>
+    </table>
+
+    <script>
+        const dados = [
+            { setor: 'A3ON Tecnologia', agosto: 1, setembro: 1 },
+            { setor: 'Administrativo', agosto: 5, setembro: 5 },
+            { setor: 'Contábil', agosto: 6, setembro: 6 },
+            { setor: 'Depto. Pessoal', agosto: 5, setembro: 5 },
+            { setor: 'Fiscal', agosto: 6, setembro: 6 },
+            { setor: 'Serviços', agosto: 2, setembro: 2 },
+            { setor: 'Serviços Gerais', agosto: 1, setembro: 1 },
+            { setor: 'Simples Nac.', agosto: 3, setembro: 3 }
+        ];
+
+        // Registra o plugin datalabels
+        Chart.register(ChartDataLabels);
+
+        // Tabela
+        const tbody = document.getElementById('tabela-body');
+        let selectedRows = new Set();
+        let selectedData = [];
+
+        dados.forEach((d, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${d.setor}</td>
+                <td>${d.agosto}</td>
+                <td>${d.setembro}</td>
+            `;
+            tr.dataset.index = index;
+            tr.addEventListener('click', () => toggleSelection(d, tr, index));
+            tbody.appendChild(tr);
+        });
+
+        // Gráfico
+        const ctx = document.getElementById('colabChart').getContext('2d');
+        let chartInstance = null;
+
+        function criarGrafico(dadosGrafico) {
+            const setores = dadosGrafico.map(d => d.setor);
+            const agosto = dadosGrafico.map(d => d.agosto);
+            const setembro = dadosGrafico.map(d => d.setembro);
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: setores,
+                    datasets: [
+                        {
+                            label: 'Agosto',
+                            data: agosto,
+                            // Cor primária do neon (Ciano)
+                            backgroundColor: 'rgba(110,231,255,0.7)',
+                            borderColor: 'rgba(110,231,255,1)',
+                            borderWidth: 1.5
+                        },
+                        {
+                            label: 'Setembro',
+                            data: setembro,
+                            // Cor secundária do neon (Roxo/Magenta)
+                            backgroundColor: 'rgba(139,92,246,0.7)',
+                            borderColor: 'rgba(139,92,246,1)',
+                            borderWidth: 1.5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            // Ajustei o 'max' para ser um pouco maior (8) pois o máximo valor é 6, garantindo espaço
+                            max: 8, 
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            ticks: { color: '#e0e0e0' },
+                            title: {
+                                display: true,
+                                text: 'Quantidade de Colaboradores',
+                                color: '#6ee7ff'
+                            }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#e0e0e0' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0' } },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y
+                            }
+                        },
+                        // 💡 ESTILO DATALABELS COPIADO DO SEU EXEMPLO
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 12
+                            },
+                            formatter: (value) => value,
+                            anchor: 'end',
+                            align: 'top',
+                            offset: 4,
+                            backgroundColor: function (context) {
+                                return context.dataset.backgroundColor.replace('0.7)', '0.9)');
+                            },
+                            borderColor: function (context) {
+                                return context.dataset.borderColor;
+                            },
+                            borderWidth: 2,
+                            borderRadius: 4,
+                            padding: 4
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleSelection(setor, row, index) {
+            // Toggle seleção
+            if (selectedRows.has(index)) {
+                selectedRows.delete(index);
+                row.classList.remove('selected');
+                selectedData = selectedData.filter(d => d.setor !== setor.setor);
+            } else {
+                selectedRows.add(index);
+                row.classList.add('selected');
+                selectedData.push(setor);
+            }
+
+            // Atualiza gráfico: se nada selecionado, mostra todos; senão mostra apenas selecionados
+            if (selectedData.length > 0) {
+                criarGrafico(selectedData);
+            } else {
+                criarGrafico(dados);
+            }
+        }
+
+        // Inicializa gráfico com todos os dados
         criarGrafico(dados);
-      }
-    }
-
-    // Inicializa gráfico com todos os dados
-    criarGrafico(dados);
-  </script>
+    </script>
 </body>
+
 </html>

@@ -495,7 +495,22 @@
                 }, 
                 plugins: { 
                     tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.parsed.x + ' notas' } }, 
-                    datalabels: { anchor: 'end', align: 'end', color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (value) => value > 0 ? value : '' } 
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#fff',
+                        font: { 
+                            weight: 'bold', 
+                            size: 13
+                        },
+                        formatter: (value) => value,
+                        backgroundColor: function(context) {
+                            return context.dataset.backgroundColor.replace('0.9','0.8');
+                        },
+                        borderRadius: 4,
+                        padding: 6,
+                        offset: 2
+                    } 
                 } 
             }
         });
@@ -520,7 +535,22 @@
                 }, 
                 plugins: { 
                     tooltip: { callbacks: { label: (ctx) => ctx.dataset.label + ': ' + ctx.parsed.x + ' notas' } }, 
-                    datalabels: { anchor: 'end', align: 'end', color: '#fff', font: { weight: 'bold', size: 12 }, formatter: (value) => value > 0 ? value : '' } 
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#fff',
+                        font: { 
+                            weight: 'bold', 
+                            size: 13
+                        },
+                        formatter: (value) => value,
+                        backgroundColor: function(context) {
+                            return context.dataset.backgroundColor.replace('0.9','0.8');
+                        },
+                        borderRadius: 4,
+                        padding: 6,
+                        offset: 2
+                    } 
                 } 
             }
         });

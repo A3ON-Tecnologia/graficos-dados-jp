@@ -45,10 +45,62 @@
     }
     .chart-title { margin: 0 0 10px; font-weight: 600; color: #d6e6ff; text-align:center; }
 
+    /* --- Estilos para os Novos Filtros da Tabela Geral --- */
+    .filter-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      width: 95%;
+      margin: 20px auto 10px;
+      padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      justify-content: center;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      align-items: flex-end; /* Alinha dropdown e botões */
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .filter-group label {
+      color: #d6e6ff;
+      font-weight: 600;
+      font-size: 14px;
+      margin-left: 5px;
+    }
+    .filter-group select {
+      padding: 10px 14px; /* Combina com o padding do botão */
+      border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: #2c5364;
+      color: #e0e0e0;
+      font-size: 14px; /* Combina com a fonte do botão */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .filter-group select:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(110,231,255,0.5);
+    }
+    .filter-group select:focus {
+      outline: none;
+      border-color: rgba(110,231,255,1);
+      background: rgba(110,231,255,0.3);
+    }
+    /* Ajusta .filtros-mes para este novo container */
+    .filter-container .filtros-mes {
+      margin-bottom: 0; /* Remove margem extra */
+    }
+    /* --- Fim dos Estilos de Filtro --- */
+
     table {
       width: 95%;
       border-collapse: collapse;
-      margin: 40px auto;
+      margin: 20px auto 40px; /* Margem superior reduzida */
       background: rgba(255,255,255,0.05);
       box-shadow: 0 5px 20px rgba(0,0,0,0.3);
       border-radius: 12px;
@@ -199,8 +251,34 @@
     <div class="chart-box"><h3 class="chart-title">Associações</h3><canvas id="chartAssociacoes"></canvas></div>
   </div>
 
-  <!-- TABELA GERAL -->
-  <table>
+  <div class="filter-container">
+    <div class="filter-group">
+      <label for="selectTributacao">Filtrar por Tributação:</label>
+      <select id="selectTributacao">
+        <option value="todas">Todas as Tributações</option>
+        <option value="Simples Nacional">Simples Nacional</option>
+        <option value="MEI">MEI</option>
+        <option value="Lucro Real">Lucro Real</option>
+        <option value="Lucro Presumido">Lucro Presumido</option>
+        <option value="Rural">Rural</option>
+        <option value="Filiais">Filiais</option>
+        <option value="Domésticas">Domésticas</option>
+        <option value="Autônomos">Autônomos</option>
+        <option value="Associações">Associações</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Filtrar por Mês:</label>
+      <div class="filtros-mes" id="filtroMesGeral">
+        <button class="btn-filtro active" data-mes="todos">TODOS</button>
+        <button class="btn-filtro" data-mes="06 - JUNHO">JUNHO</button>
+        <button class="btn-filtro" data-mes="07 - JULHO">JULHO</button>
+        <button class="btn-filtro" data-mes="08 - AGOSTO">AGOSTO</button>
+        <button class="btn-filtro" data-mes="09 - SETEMBRO">SETEMBRO</button>
+      </div>
+    </div>
+  </div>
+  <table id="tabelaGeral">
     <thead>
       <tr>
         <th>Tributação</th>
@@ -208,7 +286,7 @@
         <th>Quantidade</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="tbodyGeral">
       <tr><td>Simples Nacional</td><td>06 - JUNHO</td><td>173</td></tr>
       <tr><td>Simples Nacional</td><td>07 - JULHO</td><td>174</td></tr>
       <tr><td>Simples Nacional</td><td>08 - AGOSTO</td><td>175</td></tr>
@@ -256,7 +334,6 @@
     </tbody>
   </table>
 
-  <!-- SEÇÃO SIMPLES NACIONAL DETALHADA -->
   <div class="section-detalhada">
     <h2 class="section-title">Simples Nacional — Detalhamento</h2>
     
@@ -302,7 +379,7 @@
       'Associações': { cor: 'rgba(217,70,239,0.9)', valores: [90,87,82,82] }
     };
 
-    // Registrar plugin datalabels para os gráficos principais
+    // Registrar plugin datalabels (apenas uma vez no topo)
     Chart.register(ChartDataLabels);
 
     function criarGraficoArea(canvasId, label, serie){
@@ -377,11 +454,44 @@
     criarGraficoArea('chartAssociacoes','Associações',series['Associações']);
 
     // ============================================
+    // LÓGICA DOS FILTROS DA TABELA GERAL
+    // ============================================
+
+    function updateTabelaGeralFilters() {
+      const selectedTributacao = document.getElementById('selectTributacao').value;
+      const selectedMes = document.querySelector('#filtroMesGeral .btn-filtro.active').dataset.mes;
+      const rows = document.querySelectorAll('#tbodyGeral tr');
+
+      rows.forEach(row => {
+        const rowTributacao = row.cells[0].textContent;
+        const rowMes = row.cells[1].textContent;
+
+        const tributacaoMatch = (selectedTributacao === 'todas' || rowTributacao === selectedTributacao);
+        const mesMatch = (selectedMes === 'todos' || rowMes === selectedMes);
+
+        // Mostra ou esconde a linha
+        row.style.display = (tributacaoMatch && mesMatch) ? '' : 'none';
+      });
+    }
+
+    // Adiciona listeners para os filtros da Tabela Geral
+    document.getElementById('selectTributacao').addEventListener('change', updateTabelaGeralFilters);
+    
+    const botoesMesGeral = document.querySelectorAll('#filtroMesGeral .btn-filtro');
+    botoesMesGeral.forEach(btn => {
+      btn.addEventListener('click', () => {
+        botoesMesGeral.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        updateTabelaGeralFilters();
+      });
+    });
+
+
+    // ============================================
     // SEÇÃO SIMPLES NACIONAL DETALHADA
     // ============================================
     
-    // Registra o plugin datalabels
-    Chart.register(ChartDataLabels);
+    // (O registro do plugin já foi feito no topo, não precisa repetir)
 
     const dadosSimplesNacional = [
       { descricao: 'Simples Nacional', junho: 173, julho: 174, agosto: 175, setembro: 174 },
@@ -431,15 +541,13 @@
         : dadosSimplesNacional.filter((_, idx) => linhasSelecionadas.has(idx));
 
       const datasets = dadosParaMostrar.map((item, idx) => {
-        const originalIndex = linhasSelecionadas === null 
-          ? idx 
-          : Array.from(linhasSelecionadas)[dadosParaMostrar.indexOf(item)];
+        const originalIndex = dadosSimplesNacional.indexOf(item);
         
         return {
           label: item.descricao,
           data: [item.junho, item.julho, item.agosto, item.setembro],
-          backgroundColor: coresDetalhado[dadosSimplesNacional.indexOf(item)].bg,
-          borderColor: coresDetalhado[dadosSimplesNacional.indexOf(item)].border,
+          backgroundColor: coresDetalhado[originalIndex].bg,
+          borderColor: coresDetalhado[originalIndex].border,
           borderWidth: 2
         };
       });
@@ -504,17 +612,30 @@
                 label: (ctx) => ctx.dataset.label + ': ' + ctx.parsed.y
               }
             },
+            // ========= Datalabels Modificados =========
             datalabels: {
               anchor: 'end',
               align: 'top',
               color: '#fff',
               font: { 
                 weight: 'bold', 
-                size: 16 
+                size: 13 // Mesmo tamanho dos gráficos principais
               },
               formatter: (value) => value,
-              offset: 4
+              // Cor de fundo baseada na cor do dataset
+              backgroundColor: (context) => {
+                const borderColor = context.dataset.borderColor;
+                if (borderColor && borderColor.includes('rgba')) {
+                  // Substitui a opacidade '1' por '0.8'
+                  return borderColor.replace(/, ?1\)$/, ', 0.8)');
+                }
+                return 'rgba(0,0,0,0.7)'; // Fallback
+              },
+              borderRadius: 4, // Mesmo radius
+              padding: 6, // Mesmo padding
+              offset: 2 // Mesmo offset
             }
+            // ========= Fim da Modificação =========
           }
         }
       });

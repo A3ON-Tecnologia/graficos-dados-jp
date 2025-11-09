@@ -1,488 +1,627 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Horas Extras — Gráficos e Totais</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body{margin:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:radial-gradient(circle at top left,#0f2027,#203a43,#2c5364);color:#e0e0e0;display:flex;flex-direction:column;align-items:center;min-height:100vh}
-    h1{margin:20px 0 6px;color:#6ee7ff;text-shadow:0 0 10px rgba(110,231,255,.5);text-align:center}
-    .sub{color:#b9c7da;margin-bottom:10px}
-    a.voltar{display:inline-block;margin:8px 0 8px;padding:10px 16px;border-radius:10px;background:rgba(139,92,246,.3);color:#fff;text-decoration:none}
-    a.voltar:hover{background:rgba(139,92,246,.5)}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horas Extras — Gráficos e Totais</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Estilos CSS (Sem alterações estruturais, apenas verificados) */
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364); color: #e0e0e0; display: flex; flex-direction: column; align-items: center; min-height: 100vh }
+        h1 { margin: 20px 0 6px; color: #6ee7ff; text-shadow: 0 0 10px rgba(110, 231, 255, .5); text-align: center }
+        .sub { color: #b9c7da; margin-bottom: 10px }
+        a.voltar { display: inline-block; margin: 8px 0 8px; padding: 10px 16px; border-radius: 10px; background: rgba(139, 92, 246, .3); color: #fff; text-decoration: none }
+        a.voltar:hover { background: rgba(139, 92, 246, .5) }
 
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(340px,1fr));gap:24px;width:95%;margin-top:18px}
-    @media(max-width:960px){.grid{grid-template-columns:1fr}}
-    .card{background:rgba(255,255,255,.05);border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4);padding:16px;height:340px}
-    .card h3{margin:0 0 8px;color:#d6e6ff}
+        .grid { display: grid; grid-template-columns: repeat(2, minmax(340px, 1fr)); gap: 24px; width: 95%; margin-top: 18px; transition: grid-template-columns 0.4s ease }
+        @media(max-width:960px) { .grid { grid-template-columns: 1fr } }
+        .card { background: rgba(255, 255, 255, .05); border-radius: 18px; box-shadow: 0 10px 30px rgba(0, 0, 0, .4); padding: 16px; height: 340px; transition: opacity 0.4s ease, display 0.4s ease }
+        .card h3 { margin: 0 0 8px; color: #d6e6ff }
 
-    /* Carrossel de meses */
-    .carousel{width:95%;margin:24px auto 8px;overflow-x:auto;display:flex;gap:14px;padding:10px 4px}
-    .pill{min-width:200px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 16px;flex:0 0 auto;box-shadow:0 6px 18px rgba(0,0,0,.35)}
-    .pill .m{font-weight:700;color:#e9f2ff}
-    .pill .v{color:#a8bed9;margin-top:6px}
+        /* --- NOVOS ESTILOS: Carrossel Infinito --- */
+        .carousel-wrapper {
+            width: 95%;
+            overflow: hidden;
+            margin: 24px auto 8px;
+            /* Efeito 'tecnológico' de fade nas bordas */
+            mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+        }
+        .carousel-container {
+            display: flex;
+            width: fit-content;
+            animation: marquee 60s linear infinite;
+        }
+        /* Pausa a animação ao passar o mouse */
+        .carousel-container:hover {
+            animation-play-state: paused;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            /* Move 50% pois temos 2 containers idênticos */
+            100% { transform: translateX(-50%); }
+        }
+        /* Estilos originais do carrossel modificados */
+        .carousel {
+            /* overflow-x: auto; */
+            display: flex;
+            gap: 14px;
+            padding: 10px 4px;
+            flex-shrink: 0;
+        }
+        .pill {
+            min-width: 200px;
+            background: rgba(255, 255, 255, .06);
+            /* Borda 'tecnológica' */
+            border: 1px solid rgba(110, 231, 255, .2);
+            backdrop-filter: blur(4px);
+            border-radius: 14px;
+            padding: 12px 16px;
+            flex: 0 0 auto;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+            transition: transform 0.2s ease, opacity 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .pill:hover {
+            border-color: rgba(110, 231, 255, .7);
+            box-shadow: 0 0 15px rgba(110, 231, 255, 0.4);
+        }
+        .pill .m { font-weight: 700; color: #e9f2ff }
+        .pill .v { color: #a8bed9; margin-top: 6px }
+        /* --- FIM DOS NOVOS ESTILOS --- */
 
-    table{width:95%;border-collapse:collapse;margin:18px auto;background:rgba(255,255,255,.05);box-shadow:0 5px 20px rgba(0,0,0,.3);border-radius:12px;overflow:hidden}
-    th,td{padding:10px 14px;text-align:left}
-    th{background:rgba(139,92,246,.3);color:#fff;text-transform:uppercase;letter-spacing:.6px}
-    tr:nth-child(even){background:rgba(255,255,255,.03)}
-    tr:hover{background:rgba(110,231,255,.1)}
-    td{color:#d0e0ff}
+        table { width: 95%; border-collapse: collapse; margin: 18px auto; background: rgba(255, 255, 255, .05); box-shadow: 0 5px 20px rgba(0, 0, 0, .3); border-radius: 12px; overflow: hidden }
+        th, td { padding: 10px 14px; text-align: left }
+        th { background: rgba(139, 92, 246, .3); color: #fff; text-transform: uppercase; letter-spacing: .6px }
+        /* Importante manter este estilo CSS nativo */
+        tr:nth-child(even) { background: rgba(255, 255, 255, .03) } 
+        tr:hover { background: rgba(110, 231, 255, .1) }
+        td { color: #d0e0ff }
 
-    .total{width:95%;display:flex;justify-content:flex-end;margin:8px 0 40px}
-    .badge{background:rgba(16,185,129,.25);border:1px solid rgba(16,185,129,.5);padding:10px 14px;border-radius:12px;color:#d7ffee;font-weight:700}
-    
-    /* Estilos para interatividade */
-    .pill{transition:transform 0.2s ease, opacity 0.3s ease}
-    tr{transition:background-color 0.2s ease, opacity 0.3s ease}
-    canvas{transition:opacity 0.3s ease}
-    .destacado{box-shadow:0 0 15px rgba(110,231,255,0.6) !important}
-  </style>
+        /* Bloco do total geral */
+        .total { width: 95%; display: flex; justify-content: center; align-items: center; margin: 8px 0 0 }
+        .badge { background: rgba(16, 185, 129, .25); border: 1px solid rgba(16, 185, 129, .5); padding: 10px 14px; border-radius: 12px; color: #d7ffee; font-weight: 700 }
+
+        /* Estilos para interatividade */
+        tr { transition: background-color 0.2s ease, opacity 0.3s ease }
+        canvas { transition: opacity 0.3s ease }
+        .destacado { box-shadow: 0 0 15px rgba(110, 231, 255, 0.6) !important; background-color: rgba(110, 231, 255, .2) !important; }
+    </style>
 </head>
 <body>
-  <h1>Horas Extras — Janeiro a Setembro</h1>
-  <div class="sub">Valores reais somados a partir da planilha. Gráficos e tabelas estão 100% estáticos.</div>
-  <a href="index.html" class="voltar">← Voltar para Home</a>
+    <h1>Horas Extras — Janeiro a Setembro</h1>
+    <div class="sub">Valores reais somados a partir da planilha. Gráficos e tabelas estão 100% estáticos.</div>
+    <a href="index.html" class="voltar">← Voltar para Home</a>
 
-  <!-- 4 gráficos (2 por linha x 2 linhas) -->
-  <div class="grid">
-    <div class="card"><h3>Contábil</h3><canvas id="chartContabil"></canvas></div>
-    <div class="card"><h3>SIMPLES</h3><canvas id="chartSimples"></canvas></div>
-    <div class="card"><h3>DP</h3><canvas id="chartDP"></canvas></div>
-    <div class="card"><h3>SERVIÇOS</h3><canvas id="chartServicos"></canvas></div>
-  </div>
+    <div class="grid">
+        <div class="card"><h3>Contábil</h3><canvas id="chartContabil"></canvas></div>
+        <div class="card"><h3>SIMPLES</h3><canvas id="chartSimples"></canvas></div>
+        <div class="card"><h3>DP</h3><canvas id="chartDP"></canvas></div>
+        <div class="card"><h3>SERVIÇOS</h3><canvas id="chartServicos"></canvas></div>
+    </div>
 
-  <!-- Carrossel de meses com total pago -->
-  <div class="carousel" id="carousel"></div>
+    <div class="total"><div class="badge">Total Geral Pago: <span id="totalGeral"></span></div></div>
 
-  <!-- Tabela por Departamento -->
-  <table>
-    <thead><tr><th>Departamento</th><th>Total Pago</th></tr></thead>
-    <tbody id="tbody-dep"></tbody>
-  </table>
+    <div class="carousel-wrapper">
+        <div class="carousel-container" id="carousel-container">
+            <div class="carousel" id="carousel"></div>
+            <div class="carousel" id="carousel-clone"></div>
+        </div>
+    </div>
 
-  <!-- Tabela por Funcionário -->
-  <table>
-    <thead><tr><th>Funcionário</th><th>Total Pago</th></tr></thead>
-    <tbody id="tbody-func"></tbody>
-  </table>
+    <table>
+        <thead><tr><th>Departamento</th><th>Total Pago</th></tr></thead>
+        <tbody id="tbody-dep"></tbody>
+    </table>
 
-  <div class="total"><div class="badge">Total Geral Pago: <span id="totalGeral"></span></div></div>
+    <table>
+        <thead><tr><th>Funcionário</th><th>Total Pago</th></tr></thead>
+        <tbody id="tbody-func"></tbody>
+    </table>
 
-  <script>
-    // Labels de meses (ordem real)
-    const MESES = ['01 - JANEIRO','02 - FEVEREIRO','03 - MARÇO','04 - ABRIL','05 - MAIO','06 - JUNHO','07 - JULHO','08 - AGOSTO','09 - SETEMBRO'];
+    <script>
+        // Labels de meses (ordem real)
+        const MESES = ['01 - JANEIRO', '02 - FEVEREIRO', '03 - MARÇO', '04 - ABRIL', '05 - MAIO', '06 - JUNHO', '07 - JULHO', '08 - AGOSTO', '09 - SETEMBRO'];
 
-    // Séries reais por departamento (VALOR PG)
-    const SERIES = {
-      'CONTÁBIL': [5740.35, 9920.65, 6230.80, 4281.30, 8934.35, 6705.28, 4154.50, 1746.65, 2200.60],
-      'SIMPLES':  [5517.03, 8292.90, 5336.55, 4079.65, 2958.45, 3945.40, 2346.50, 4251.35, 3456.45],
-      'DP':       [0.00,    1369.92, 1196.80, 0.00,    0.00,    0.00,    0.00,    0.00,    0.00   ],
-      'SERVIÇOS': [0.00,    0.00,    0.00,    0.00,    0.00,    219.35,  0.00,    1289.10, 1045.00]
-    };
+        // Séries reais por departamento (VALOR PG)
+        const SERIES = {
+            'CONTÁBIL': [5740.35, 9920.65, 6230.80, 4281.30, 8934.35, 6705.28, 4154.50, 1746.65, 2200.60],
+            'SIMPLES': [5517.03, 8292.90, 5336.55, 4079.65, 2958.45, 3945.40, 2346.50, 4251.35, 3456.45],
+            'DP': [0.00, 1369.92, 1196.80, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+            'SERVIÇOS': [0.00, 0.00, 0.00, 0.00, 0.00, 219.35, 0.00, 1289.10, 1045.00]
+        };
 
-    // Totais por mês (para o carrossel)
-    const TOTAL_MES = [11257.38, 19583.47, 12764.15, 8360.95, 11892.80, 10870.03, 6501.00, 7287.10, 6702.05];
+        // Totais por mês (para o carrossel)
+        const TOTAL_MES = [11257.38, 19583.47, 12764.15, 8360.95, 11892.80, 10870.03, 6501.00, 7287.10, 6702.05];
 
-    // Totais por departamento (para a tabela)
-    const TOTAL_DEP = [
-      ['CONTÁBIL', 49914.48],
-      ['SIMPLES', 40184.28],
-      ['DP', 2566.72],
-      ['SERVIÇOS', 2553.45]
-    ];
+        // Totais por departamento (para a tabela)
+        const TOTAL_DEP = [
+            ['CONTÁBIL', 49914.48],
+            ['SIMPLES', 40184.28],
+            ['DP', 2566.72],
+            ['SERVIÇOS', 2553.45]
+        ];
 
-    // Totais por funcionário (para a tabela)
-    const TOTAL_FUNC = [
-      ['Helena', 27604.95],
-      ['Ryan', 20976.05],
-      ['Fernando', 18846.80],
-      ['Fabiola', 11871.20],
-      ['Mara', 5535.00],
-      ['Pablo', 2553.45],
-      ['Eridi', 2310.09],
-      ['Gabrieli', 951.58],
-      ['Thaissa', 915.98],
-      ['Ana', 886.05],
-      ['Darli', 855.90],
-      ['Luana', 640.20],
-      ['Isadora', 588.50],
-      ['Larissa', 564.14],
-      ['Janete', 119.04]
-    ];
+        // Totais por funcionário (para a tabela)
+        const TOTAL_FUNC = [
+            ['Helena', 27604.95],
+            ['Ryan', 20976.05],
+            ['Fernando', 18846.80],
+            ['Fabiola', 11871.20],
+            ['Mara', 5535.00],
+            ['Pablo', 2553.45],
+            ['Eridi', 2310.09],
+            ['Gabrieli', 951.58],
+            ['Thaissa', 915.98],
+            ['Ana', 886.05],
+            ['Darli', 855.90],
+            ['Luana', 640.20],
+            ['Isadora', 588.50],
+            ['Larissa', 564.14],
+            ['Janete', 119.04]
+        ];
 
-    // Dados detalhados por funcionário e mês (simulados baseados nos totais)
-    const DADOS_FUNCIONARIOS = {
-      'Helena': [3325.00, 5558.20, 3112.30, 2587.30, 5110.00, 3233.20, 1805.50, 1411.40, 1462.05], // OK
-      'Ryan': [1800.50, 3590.30, 2510.00, 1321.00, 1385.30, 2777.00, 1805.25, 3120.15, 2666.25], // OK
-      'Fernando': [2415.35, 4362.45, 2983.45, 1694.00, 2279.40, 2954.35, 1134.00, 335.25, 688.55], // OK
-      'Fabiola': [1524.15, 3257.20, 2758.35, 2758.35, 1573.15, 0.00, 0.00, 0.00, 0.00], // OK
-      'Mara': [1650.00, 1140.00, 0.00, 0.00, 0.00, 960.00, 225.00, 810.00, 750.00], // OK
-      'Pablo': [0.00, 0.00, 0.00, 0.00, 0.00, 219.35, 0.00, 1289.10, 1045.00], // OK
-      'Eridi': [0.00, 0.00, 42.09, 0.00, 1053.00, 0.00, 1215.00, 0.00, 0.00], // OK
-      'Gabrieli': [0.00, 685.45, 266.13, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00], // OK
-      'Thaissa': [542.38, 305.40, 68.20, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00], // OK
-      'Ana': [0.00, 0.00, 0.00, 0.00, 0.00, 208.40, 316.25, 321.20, 40.20], // OK
-      'Darli': [0.00, 565,43, 290.47, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00], // OK
-      'Luana': [0.00, 0.00, 640.20, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00], // OK
-      'Isadora': [0.00, 0.00, 35.60, 0.00, 259.47, 243.43, 0.00, 0.00, 50.00], // OK
-      'Larissa': [0.00, 0.00, 57.36, 0.00, 232.48, 274.30, 0.00, 0.00, 0.00], // OK
-      'Janete': [0.00, 119.04, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00] // OK
-    };
+        // Dados detalhados por funcionário e mês (simulados baseados nos totais)
+        const DADOS_FUNCIONARIOS = {
+            'Helena': [3325.00, 5558.20, 3112.30, 2587.30, 5110.00, 3233.20, 1805.50, 1411.40, 1462.05],
+            'Ryan': [1800.50, 3590.30, 2510.00, 1321.00, 1385.30, 2777.00, 1805.25, 3120.15, 2666.25],
+            'Fernando': [2415.35, 4362.45, 2983.45, 1694.00, 2279.40, 2954.35, 1134.00, 335.25, 688.55],
+            'Fabiola': [1524.15, 3257.20, 2758.35, 2758.35, 1573.15, 0.00, 0.00, 0.00, 0.00],
+            'Mara': [1650.00, 1140.00, 0.00, 0.00, 0.00, 960.00, 225.00, 810.00, 750.00],
+            'Pablo': [0.00, 0.00, 0.00, 0.00, 0.00, 219.35, 0.00, 1289.10, 1045.00],
+            'Eridi': [0.00, 0.00, 42.09, 0.00, 1053.00, 0.00, 1215.00, 0.00, 0.00],
+            'Gabrieli': [0.00, 685.45, 266.13, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+            'Thaissa': [542.38, 305.40, 68.20, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+            'Ana': [0.00, 0.00, 0.00, 0.00, 0.00, 208.40, 316.25, 321.20, 40.20],
+            'Darli': [0.00, 565.43, 290.47, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+            'Luana': [0.00, 0.00, 640.20, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+            'Isadora': [0.00, 0.00, 35.60, 0.00, 259.47, 243.43, 0.00, 0.00, 50.00],
+            'Larissa': [0.00, 0.00, 57.36, 0.00, 232.48, 274.30, 0.00, 0.00, 0.00],
+            'Janete': [0.00, 119.04, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00]
+        };
 
-    const TOTAL_GERAL = 95218.93;
+        const TOTAL_GERAL = 95218.93;
 
-    // Cores para os gráficos
-    const CORES = [
-      'rgba(59,130,246,0.8)',   // Azul
-      'rgba(239,68,68,0.8)',    // Vermelho
-      'rgba(34,197,94,0.8)',    // Verde
-      'rgba(234,179,8,0.8)',    // Amarelo
-      'rgba(139,92,246,0.8)',   // Roxo
-      'rgba(236,72,153,0.8)',   // Rosa
-      'rgba(20,184,166,0.8)',   // Teal
-      'rgba(251,146,60,0.8)',   // Laranja
-      'rgba(156,163,175,0.8)'   // Cinza
-    ];
+        // Cores para os gráficos
+        const CORES = [
+            'rgba(59,130,246,0.8)', // Azul
+            'rgba(239,68,68,0.8)', // Vermelho
+            'rgba(34,197,94,0.8)', // Verde
+            'rgba(234,179,8,0.8)', // Amarelo
+            'rgba(139,92,246,0.8)', // Roxo
+            'rgba(236,72,153,0.8)', // Rosa
+            'rgba(20,184,166,0.8)', // Teal
+            'rgba(251,146,60,0.8)', // Laranja
+            'rgba(156,163,175,0.8)' // Cinza
+        ];
 
-    // Estado dos filtros
-    let filtroAtivo = { tipo: null, valor: null };
-    let chartInstances = {}; // Para armazenar instâncias dos gráficos
+        // Estado dos filtros
+        let filtroAtivo = { tipo: null, valor: null };
+        let chartInstances = {}; // Para armazenar instâncias dos gráficos
 
-    // Utilitário moeda
-    const BRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+        // Utilitário moeda
+        const BRL = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-    // Função para filtrar elementos
-    function aplicarFiltro(tipo, valor) {
-      if (filtroAtivo.tipo === tipo && filtroAtivo.valor === valor) {
-        // Remove filtro se clicar no mesmo
-        filtroAtivo = { tipo: null, valor: null };
-        document.querySelector('h1').textContent = 'Horas Extras — Janeiro a Setembro';
-      } else {
-        // Aplica novo filtro
-        filtroAtivo = { tipo, valor };
-        if (tipo === 'departamento') {
-          document.querySelector('h1').textContent = `Horas Extras — ${valor}`;
-        } else if (tipo === 'funcionario') {
-          document.querySelector('h1').textContent = `Horas Extras — ${valor}`;
-          // Atualizar badge com total do funcionário
-          const totalFunc = TOTAL_FUNC.find(f => f[0] === valor);
-          if (totalFunc) {
-            document.getElementById('totalGeral').textContent = `${valor}: ${BRL(totalFunc[1])}`;
-          }
-        } else if (tipo === 'mes') {
-          document.querySelector('h1').textContent = `Horas Extras — ${valor}`;
-        }
-      }
-      
-      atualizarVisualizacao();
-    }
+        // Função para filtrar elementos
+        function aplicarFiltro(tipo, valor) {
+            if (filtroAtivo.tipo === tipo && filtroAtivo.valor === valor) {
+                // Remove filtro se clicar no mesmo
+                filtroAtivo = { tipo: null, valor: null };
+                document.querySelector('h1').textContent = 'Horas Extras — Janeiro a Setembro';
+            } else {
+                // Aplica novo filtro
+                filtroAtivo = { tipo, valor };
+                document.querySelector('h1').textContent = `Horas Extras — ${valor}`;
 
-    // Função para atualizar visualização baseada no filtro
-    function atualizarVisualizacao() {
-      // Atualizar gráficos
-      atualizarGraficos();
-      
-      // Atualizar tabelas
-      atualizarTabelaDepartamentos();
-      atualizarTabelaFuncionarios();
-      atualizarCarrossel();
-      
-      // Destacar elementos selecionados
-      destacarElementos();
-      
-      // Resetar total se não for filtro de funcionário
-      if (filtroAtivo.tipo !== 'funcionario') {
-        document.getElementById('totalGeral').textContent = BRL(TOTAL_GERAL);
-      }
-    }
-
-    // Função para atualizar gráficos baseado no filtro
-    function atualizarGraficos() {
-      if (filtroAtivo.tipo === 'mes') {
-        // Filtrar por mês específico
-        const mesIndex = MESES.indexOf(filtroAtivo.valor);
-        if (mesIndex !== -1) {
-          // Recriar gráficos com apenas o mês selecionado
-          Object.keys(SERIES).forEach(dept => {
-            const canvasId = `chart${dept === 'CONTÁBIL' ? 'Contabil' : dept === 'SIMPLES' ? 'Simples' : dept === 'DP' ? 'DP' : 'Servicos'}`;
-            const valor = SERIES[dept][mesIndex];
-            criarGraficoFiltrado(canvasId, dept, [filtroAtivo.valor], [valor]);
-          });
-        }
-      } else {
-        // Mostrar todos os meses
-        barChart('chartContabil','CONTÁBIL', SERIES['CONTÁBIL']);
-        barChart('chartSimples','SIMPLES', SERIES['SIMPLES']);
-        barChart('chartDP','DP', SERIES['DP']);
-        barChart('chartServicos','SERVIÇOS', SERIES['SERVIÇOS']);
-      }
-    }
-
-    // Função para criar gráfico filtrado
-    function criarGraficoFiltrado(canvasId, label, labels, data) {
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      
-      // Destruir gráfico anterior se existir
-      if (chartInstances[canvasId]) {
-        chartInstances[canvasId].destroy();
-      }
-      
-      const backgroundColors = data.map((_, index) => CORES[index % CORES.length]);
-      const borderColors = backgroundColors.map(color => color.replace('0.8', '1'));
-      
-      chartInstances[canvasId] = new Chart(ctx, {
-        type:'bar',
-        data:{ 
-          labels: labels, 
-          datasets:[{ 
-            label, 
-            data, 
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
-            borderWidth: 1.4 
-          }]
-        },
-        options:{ 
-          responsive: true, 
-          maintainAspectRatio: false,
-          onClick: (event, elements) => {
-            if (elements.length > 0) {
-              aplicarFiltro('departamento', label);
-            }
-          },
-          scales:{ 
-            y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,.1)'}, ticks:{ color:'#e0e0e0', callback:(v)=>BRL(v) } }, 
-            x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{ color:'#e0e0e0', maxRotation:45, minRotation:45 } } 
-          },
-          plugins:{ 
-            legend:{ labels:{ color:'#e0e0e0' } }, 
-            tooltip:{ callbacks:{ label:(ctx)=> `${ctx.dataset.label}: ${BRL(ctx.parsed.y)}` } }
-          }
-        },
-        plugins: [{
-          id: 'datalabels',
-          afterDatasetsDraw(chart) {
-            const { ctx: canvasCtx, data } = chart;
-            canvasCtx.font = 'bold 10px Arial';
-            canvasCtx.fillStyle = '#ffffff';
-            canvasCtx.textAlign = 'center';
-            canvasCtx.textBaseline = 'bottom';
-            
-            data.datasets.forEach((dataset, datasetIndex) => {
-              const meta = chart.getDatasetMeta(datasetIndex);
-              meta.data.forEach((bar, index) => {
-                const value = dataset.data[index];
-                if (value > 0) {
-                  const x = bar.x;
-                  const y = bar.y - 5;
-                  canvasCtx.fillText(BRL(value), x, y);
+                // Atualiza badge com total do funcionário/departamento/mês, se relevante
+                if (tipo === 'funcionario') {
+                    const totalFunc = TOTAL_FUNC.find(f => f[0] === valor);
+                    document.getElementById('totalGeral').textContent = `${valor}: ${BRL(totalFunc[1])}`;
+                } else if (tipo === 'departamento') {
+                    const totalDep = TOTAL_DEP.find(d => d[0] === valor.toUpperCase());
+                    document.getElementById('totalGeral').textContent = `${valor}: ${BRL(totalDep[1])}`;
+                } else if (tipo === 'mes') {
+                    const mesIndex = MESES.indexOf(valor);
+                    const totalMes = TOTAL_MES[mesIndex];
+                    document.getElementById('totalGeral').textContent = `${valor}: ${BRL(totalMes)}`;
                 }
-              });
+            }
+
+            atualizarVisualizacao();
+        }
+
+        // Plugin de Datalabel customizado (DEFINIDO UMA VEZ)
+        const customDatalabels = {
+            id: 'customDatalabels',
+            afterDatasetsDraw(chart) {
+                const { ctx, data } = chart;
+                ctx.save();
+                data.datasets.forEach((dataset, datasetIndex) => {
+                    const meta = chart.getDatasetMeta(datasetIndex);
+                    meta.data.forEach((bar, index) => {
+                        const value = dataset.data[index];
+                        if (value > 0) {
+                            const text = BRL(value);
+                            const fontSize = 10;
+                            const padding = 4;
+                            ctx.font = `bold ${fontSize}px 'Segoe UI', Arial, sans-serif`;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+
+                            const textMetrics = ctx.measureText(text);
+                            const textWidth = textMetrics.width;
+                            const boxWidth = textWidth + (padding * 2);
+                            const boxHeight = fontSize + (padding * 2);
+
+                            const x = bar.x;
+                            const y = bar.y - (boxHeight / 2) - 5; // 5px acima da barra
+
+                            ctx.fillStyle = dataset.backgroundColor[index];
+                            ctx.beginPath();
+                            if (ctx.roundRect) {
+                                ctx.roundRect(x - (boxWidth / 2), y - (boxHeight / 2), boxWidth, boxHeight, 5);
+                            } else {
+                                ctx.fillRect(x - (boxWidth / 2), y - (boxHeight / 2), boxWidth, boxHeight);
+                            }
+                            ctx.fill();
+
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillText(text, x, y);
+                        }
+                    });
+                });
+                ctx.restore();
+            }
+        };
+
+        // Função para atualizar visualização baseada no filtro
+        function atualizarVisualizacao() {
+            // Atualizar gráficos
+            atualizarGraficos();
+
+            // Atualizar tabelas
+            atualizarTabelaDepartamentos();
+            atualizarTabelaFuncionarios();
+
+            // ATUALIZA O CARROSSEL
+            atualizarCarrossel();
+
+            // Resetar total se não houver filtro
+            if (filtroAtivo.tipo === null) {
+                document.getElementById('totalGeral').textContent = BRL(TOTAL_GERAL);
+            }
+        }
+
+        // Função para atualizar gráficos baseado no filtro
+        function atualizarGraficos() {
+            const grid = document.querySelector('.grid');
+
+            if (filtroAtivo.tipo === 'mes') {
+                // FILTRO DE MÊS: Mostrar todos os cards, mas com gráficos filtrados
+                grid.style.gridTemplateColumns = 'repeat(2,minmax(340px,1fr))';
+                const mesIndex = MESES.indexOf(filtroAtivo.valor);
+
+                if (mesIndex !== -1) {
+                    Object.keys(SERIES).forEach(dept => {
+                        const canvasId = `chart${dept === 'CONTÁBIL' ? 'Contabil' : dept === 'SIMPLES' ? 'Simples' : dept === 'DP' ? 'DP' : 'Servicos'}`;
+                        const card = document.getElementById(canvasId).closest('.card');
+                        card.style.display = 'block';
+                        card.style.opacity = '1';
+
+                        const valor = SERIES[dept][mesIndex];
+                        criarGraficoFiltrado(canvasId, dept, [filtroAtivo.valor], [valor]);
+                    });
+                }
+
+            } else if (filtroAtivo.tipo === 'departamento') {
+                // FILTRO DE DEPARTAMENTO: Mostrar SÓ o card do depto. selecionado
+                grid.style.gridTemplateColumns = '1fr';
+
+                Object.keys(SERIES).forEach(dept => {
+                    const canvasId = `chart${dept === 'CONTÁBIL' ? 'Contabil' : dept === 'SIMPLES' ? 'Simples' : dept === 'DP' ? 'DP' : 'Servicos'}`;
+                    const card = document.getElementById(canvasId).closest('.card');
+
+                    if (dept === filtroAtivo.valor) {
+                        card.style.display = 'block';
+                        card.style.opacity = '1';
+                        // barChart deve ser chamado aqui para recriar o gráfico, se necessário
+                        barChart(canvasId, dept, SERIES[dept]);
+                    } else {
+                        card.style.display = 'none';
+                        if (chartInstances[canvasId]) {
+                            chartInstances[canvasId].destroy();
+                            delete chartInstances[canvasId];
+                        }
+                    }
+                });
+
+            } else if (filtroAtivo.tipo === 'funcionario') {
+                // FILTRO DE FUNCIONÁRIO: Esmaecer TODOS os gráficos de depto.
+                grid.style.gridTemplateColumns = 'repeat(2,minmax(340px,1fr))';
+
+                Object.keys(SERIES).forEach(dept => {
+                    const canvasId = `chart${dept === 'CONTÁBIL' ? 'Contabil' : dept === 'SIMPLES' ? 'Simples' : dept === 'DP' ? 'DP' : 'Servicos'}`;
+                    const card = document.getElementById(canvasId).closest('.card');
+                    card.style.display = 'block';
+                    card.style.opacity = '0.3';
+                });
+
+            } else {
+                // SEM FILTRO (ESTADO INICIAL): Mostrar tudo normal
+                grid.style.gridTemplateColumns = 'repeat(2,minmax(340px,1fr))';
+
+                Object.keys(SERIES).forEach(dept => {
+                    const canvasId = `chart${dept === 'CONTÁBIL' ? 'Contabil' : dept === 'SIMPLES' ? 'Simples' : dept === 'DP' ? 'DP' : 'Servicos'}`;
+                    const card = document.getElementById(canvasId).closest('.card');
+                    card.style.display = 'block';
+                    card.style.opacity = '1';
+                });
+
+                // Renderiza (ou re-renderiza) todos os 4 gráficos
+                barChart('chartContabil', 'CONTÁBIL', SERIES['CONTÁBIL']);
+                barChart('chartSimples', 'SIMPLES', SERIES['SIMPLES']);
+                barChart('chartDP', 'DP', SERIES['DP']);
+                barChart('chartServicos', 'SERVIÇOS', SERIES['SERVIÇOS']);
+            }
+        }
+
+
+        // Função para criar gráfico filtrado (geralmente para filtro de Mês)
+        function criarGraficoFiltrado(canvasId, label, labels, data) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+
+            const backgroundColors = data.map((_, index) => CORES[index % CORES.length]);
+            const borderColors = backgroundColors.map(color => color.replace('0.8', '1'));
+
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label,
+                        data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            aplicarFiltro('departamento', label);
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.1)' }, ticks: { color: '#e0e0e0', callback: (v) => BRL(v) } },
+                        x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#e0e0e0', maxRotation: 45, minRotation: 45 } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${BRL(ctx.parsed.y)}` } }
+                    }
+                },
+                // Correção de Sintaxe: Plugins Customizados devem estar fora de `options`
+                plugins: [customDatalabels]
             });
-          }
-        }]
-      });
-    }
+        }
 
-    function atualizarTabelaDepartamentos() {
-      const tbody = document.getElementById('tbody-dep');
-      const rows = tbody.querySelectorAll('tr');
-      
-      rows.forEach((row, index) => {
-        const dept = TOTAL_DEP[index][0];
-        if (filtroAtivo.tipo === 'departamento' && filtroAtivo.valor !== dept) {
-          row.style.opacity = '0.3';
-        } else {
-          row.style.opacity = '1';
-        }
-      });
-    }
+        function atualizarTabelaDepartamentos() {
+            const tbody = document.getElementById('tbody-dep');
+            const rows = tbody.querySelectorAll('tr');
 
-    function atualizarTabelaFuncionarios() {
-      const tbody = document.getElementById('tbody-func');
-      const rows = tbody.querySelectorAll('tr');
-      
-      rows.forEach((row, index) => {
-        const func = TOTAL_FUNC[index][0];
-        if (filtroAtivo.tipo === 'funcionario' && filtroAtivo.valor !== func) {
-          row.style.opacity = '0.3';
-        } else {
-          row.style.opacity = '1';
-        }
-      });
-    }
+            rows.forEach((row, index) => {
+                const dept = TOTAL_DEP[index][0];
+                const isEven = index % 2 !== 0; // Verifica se a linha é par (baseado no índice)
 
-    function atualizarCarrossel() {
-      const carousel = document.getElementById('carousel');
-      
-      if (filtroAtivo.tipo === 'funcionario') {
-        // Mostrar dados específicos do funcionário
-        const funcionario = filtroAtivo.valor;
-        const dadosFuncionario = DADOS_FUNCIONARIOS[funcionario];
-        
-        if (dadosFuncionario) {
-          carousel.innerHTML = ''; // Limpar carrossel
-          
-          MESES.forEach((mes, index) => {
-            const valor = dadosFuncionario[index];
-            const el = document.createElement('div');
-            el.className = 'pill';
-            el.style.cursor = 'pointer';
-            el.innerHTML = `<div class="m">${mes}</div><div class="v">${funcionario}: <strong>${BRL(valor)}</strong></div>`;
-            el.addEventListener('click', () => aplicarFiltro('mes', mes));
-            el.addEventListener('mouseenter', () => el.style.transform = 'scale(1.02)');
-            el.addEventListener('mouseleave', () => el.style.transform = 'scale(1)');
-            carousel.appendChild(el);
-          });
+                if (filtroAtivo.tipo === 'departamento' && filtroAtivo.valor !== dept) {
+                    row.style.opacity = '0.3';
+                } else if (filtroAtivo.tipo === 'funcionario') {
+                    row.style.opacity = '0.3';
+                } else {
+                    row.style.opacity = '1';
+                }
+
+                if (filtroAtivo.tipo === 'departamento' && filtroAtivo.valor === dept) {
+                    row.classList.add('destacado');
+                } else {
+                    row.classList.remove('destacado');
+                    // Garante que o fundo seja resetado para o padrão CSS
+                    row.style.background = isEven ? 'rgba(255,255,255,.03)' : '';
+                }
+            });
         }
-      } else {
-        // Mostrar dados gerais (se não foi criado ainda, recriar)
-        if (carousel.children.length === 0 || filtroAtivo.tipo === null) {
-          carousel.innerHTML = '';
-          
-          MESES.forEach((mes, index) => {
-            const el = document.createElement('div');
-            el.className = 'pill';
-            el.style.cursor = 'pointer';
-            el.innerHTML = `<div class="m">${mes}</div><div class="v">Total pago: <strong>${BRL(TOTAL_MES[index])}</strong></div>`;
-            el.addEventListener('click', () => aplicarFiltro('mes', mes));
-            el.addEventListener('mouseenter', () => el.style.transform = 'scale(1.02)');
-            el.addEventListener('mouseleave', () => el.style.transform = 'scale(1)');
-            carousel.appendChild(el);
-          });
+
+        function atualizarTabelaFuncionarios() {
+            const tbody = document.getElementById('tbody-func');
+            const rows = tbody.querySelectorAll('tr');
+
+            rows.forEach((row, index) => {
+                const func = TOTAL_FUNC[index][0];
+                const isEven = index % 2 !== 0; // Verifica se a linha é par (baseado no índice)
+
+                if (filtroAtivo.tipo === 'funcionario' && filtroAtivo.valor !== func) {
+                    row.style.opacity = '0.3';
+                } else if (filtroAtivo.tipo === 'departamento') {
+                    row.style.opacity = '0.3';
+                } else {
+                    row.style.opacity = '1';
+                }
+
+                if (filtroAtivo.tipo === 'funcionario' && filtroAtivo.valor === func) {
+                    row.classList.add('destacado');
+                } else {
+                    row.classList.remove('destacado');
+                    // Garante que o fundo seja resetado para o padrão CSS
+                    row.style.background = isEven ? 'rgba(255,255,255,.03)' : '';
+                }
+            });
         }
-        
-        // Aplicar opacidade baseada no filtro
-        const pills = carousel.querySelectorAll('.pill');
-        pills.forEach((pill, index) => {
-          const mes = MESES[index];
-          if (filtroAtivo.tipo === 'mes' && filtroAtivo.valor !== mes) {
-            pill.style.opacity = '0.3';
-          } else {
-            pill.style.opacity = '1';
-          }
+
+        // Função do Carrossel (sem alterações de sintaxe, apenas verificada)
+        function atualizarCarrossel() {
+            const carousel = document.getElementById('carousel');
+            const carouselClone = document.getElementById('carousel-clone');
+
+            carousel.innerHTML = '';
+            carouselClone.innerHTML = '';
+
+            let dataToRender = [];
+            let filterLabel = 'Total pago';
+
+            if (filtroAtivo.tipo === 'funcionario') {
+                const funcionario = filtroAtivo.valor;
+                const dadosFuncionario = DADOS_FUNCIONARIOS[funcionario];
+                if (dadosFuncionario) {
+                    filterLabel = `${funcionario}`;
+                    dataToRender = dadosFuncionario.map((valor, index) => [MESES[index], valor]);
+                }
+            } else if (filtroAtivo.tipo === 'departamento') {
+                const dept = filtroAtivo.valor;
+                const dadosDept = SERIES[dept];
+                if (dadosDept) {
+                    filterLabel = `${dept}`;
+                    dataToRender = dadosDept.map((valor, index) => [MESES[index], valor]);
+                }
+            } else {
+                filterLabel = 'Total pago';
+                dataToRender = TOTAL_MES.map((valor, index) => [MESES[index], valor]);
+            }
+
+            dataToRender.forEach(([mes, valor]) => {
+                const pillHtml = `<div class="m">${mes}</div><div class="v">${filterLabel}: <strong>${BRL(valor)}</strong></div>`;
+
+                const createPill = () => {
+                    const el = document.createElement('div');
+                    el.className = 'pill';
+                    el.style.cursor = 'pointer';
+                    el.innerHTML = pillHtml;
+                    el.addEventListener('click', () => aplicarFiltro('mes', mes));
+                    el.addEventListener('mouseenter', () => el.style.transform = 'scale(1.02)');
+                    el.addEventListener('mouseleave', () => el.style.transform = 'scale(1)');
+
+                    if (filtroAtivo.tipo === 'mes' && filtroAtivo.valor !== mes) {
+                        el.style.opacity = '0.3';
+                    } else {
+                        el.style.opacity = '1';
+                    }
+
+                    if (filtroAtivo.tipo === 'mes' && filtroAtivo.valor === mes) {
+                        el.classList.add('destacado');
+                    } else {
+                        el.classList.remove('destacado');
+                    }
+
+                    return el;
+                };
+
+                carousel.appendChild(createPill());
+                carouselClone.appendChild(createPill());
+            });
+        }
+
+        function barChart(canvasId, label, data) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+
+            const backgroundColors = data.map((_, index) => CORES[index % CORES.length]);
+            const borderColors = backgroundColors.map(color => color.replace('0.8', '1'));
+
+            chartInstances[canvasId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: MESES,
+                    datasets: [{
+                        label,
+                        data,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (event, elements) => {
+                        if (elements.length > 0) {
+                            aplicarFiltro('departamento', label);
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.1)' }, ticks: { color: '#e0e0e0', callback: (v) => BRL(v) } },
+                        x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#e0e0e0', maxRotation: 45, minRotation: 45 } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${BRL(ctx.parsed.y)}` } }
+                    }
+                },
+                // Correção de Sintaxe: Plugins Customizados devem estar fora de `options`
+                plugins: [customDatalabels]
+            });
+        }
+
+        // --- INICIALIZAÇÃO ---
+
+        // Renderiza os 4 gráficos iniciais
+        barChart('chartContabil', 'CONTÁBIL', SERIES['CONTÁBIL']);
+        barChart('chartSimples', 'SIMPLES', SERIES['SIMPLES']);
+        barChart('chartDP', 'DP', SERIES['DP']);
+        barChart('chartServicos', 'SERVIÇOS', SERIES['SERVIÇOS']);
+
+        // Adiciona cursor pointer nos gráficos
+        document.querySelectorAll('canvas').forEach(canvas => {
+            canvas.style.cursor = 'pointer';
         });
-      }
-    }
 
-    function destacarElementos() {
-      // Remove destaques anteriores
-      document.querySelectorAll('.destacado').forEach(el => el.classList.remove('destacado'));
-      
-      // Adiciona destaque ao elemento ativo
-      if (filtroAtivo.tipo && filtroAtivo.valor) {
-        // Lógica para destacar elementos será implementada
-      }
-    }
+        // Carrossel de meses - é criado pela função atualizarCarrossel
+        atualizarCarrossel();
 
-    function barChart(canvasId, label, data){
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      
-      // Destruir gráfico anterior se existir
-      if (chartInstances[canvasId]) {
-        chartInstances[canvasId].destroy();
-      }
-      
-      // Cores diferentes para cada barra
-      const backgroundColors = data.map((_, index) => CORES[index % CORES.length]);
-      const borderColors = backgroundColors.map(color => color.replace('0.8', '1'));
-      
-      chartInstances[canvasId] = new Chart(ctx, {
-        type:'bar',
-        data:{ 
-          labels: MESES, 
-          datasets:[{ 
-            label, 
-            data, 
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
-            borderWidth: 1.4 
-          }]
-        },
-        options:{ 
-          responsive: true, 
-          maintainAspectRatio: false,
-          onClick: (event, elements) => {
-            if (elements.length > 0) {
-              aplicarFiltro('departamento', label);
-            }
-          },
-          scales:{ 
-            y:{ beginAtZero:true, grid:{color:'rgba(255,255,255,.1)'}, ticks:{ color:'#e0e0e0', callback:(v)=>BRL(v) } }, 
-            x:{ grid:{color:'rgba(255,255,255,.05)'}, ticks:{ color:'#e0e0e0', maxRotation:45, minRotation:45 } } 
-          },
-          plugins:{ 
-            legend:{ labels:{ color:'#e0e0e0' } }, 
-            tooltip:{ callbacks:{ label:(ctx)=> `${ctx.dataset.label}: ${BRL(ctx.parsed.y)}` } }
-          }
-        },
-        plugins: [{
-          id: 'datalabels',
-          afterDatasetsDraw(chart) {
-            const { ctx: canvasCtx, data } = chart;
-            canvasCtx.font = 'bold 10px Arial';
-            canvasCtx.fillStyle = '#ffffff';
-            canvasCtx.textAlign = 'center';
-            canvasCtx.textBaseline = 'bottom';
-            
-            data.datasets.forEach((dataset, datasetIndex) => {
-              const meta = chart.getDatasetMeta(datasetIndex);
-              meta.data.forEach((bar, index) => {
-                const value = dataset.data[index];
-                if (value > 0) { // Só mostra valores > 0
-                  const x = bar.x;
-                  const y = bar.y - 5;
-                  canvasCtx.fillText(BRL(value), x, y);
+        // Tabela por departamento
+        const tbodyDep = document.getElementById('tbody-dep');
+        TOTAL_DEP.forEach(([dep, val], index) => {
+            const tr = document.createElement('tr');
+            tr.style.cursor = 'pointer';
+            tr.innerHTML = `<td>${dep}</td><td>${BRL(val)}</td>`;
+            tr.addEventListener('click', () => aplicarFiltro('departamento', dep));
+            tr.addEventListener('mouseenter', () => tr.style.background = 'rgba(110,231,255,.2)');
+            tr.addEventListener('mouseleave', () => {
+                const isEven = index % 2 !== 0; // Usa o index real para o cálculo de par/ímpar
+                if (!tr.classList.contains('destacado')) {
+                    // Correção: Se não estiver destacado, volta ao estilo CSS nativo
+                    tr.style.background = isEven ? 'rgba(255,255,255,.03)' : '';
                 }
-              });
             });
-          }
-        }]
-      });
-    }
+            tbodyDep.appendChild(tr);
+        });
 
-    // Renderiza os 4 gráficos
-    barChart('chartContabil','CONTÁBIL', SERIES['CONTÁBIL']);
-    barChart('chartSimples','SIMPLES', SERIES['SIMPLES']);
-    barChart('chartDP','DP', SERIES['DP']);
-    barChart('chartServicos','SERVIÇOS', SERIES['SERVIÇOS']);
+        // Tabela por funcionário
+        const tbodyFunc = document.getElementById('tbody-func');
+        TOTAL_FUNC.forEach(([nome, val], index) => {
+            const tr = document.createElement('tr');
+            tr.style.cursor = 'pointer';
+            tr.innerHTML = `<td>${nome}</td><td>${BRL(val)}</td>`;
+            tr.addEventListener('click', () => aplicarFiltro('funcionario', nome));
+            tr.addEventListener('mouseenter', () => tr.style.background = 'rgba(110,231,255,.2)');
+            tr.addEventListener('mouseleave', () => {
+                const isEven = index % 2 !== 0; // Usa o index real para o cálculo de par/ímpar
+                if (!tr.classList.contains('destacado')) {
+                    // Correção: Se não estiver destacado, volta ao estilo CSS nativo
+                    tr.style.background = isEven ? 'rgba(255,255,255,.03)' : '';
+                }
+            });
+            tbodyFunc.appendChild(tr);
+        });
 
-    // Adiciona cursor pointer nos gráficos
-    document.querySelectorAll('canvas').forEach(canvas => {
-      canvas.style.cursor = 'pointer';
-    });
-
-    // Carrossel de meses - será criado pela função atualizarCarrossel
-    atualizarCarrossel();
-
-    // Tabela por departamento
-    const tbodyDep = document.getElementById('tbody-dep');
-    TOTAL_DEP.forEach(([dep, val])=>{
-      const tr=document.createElement('tr');
-      tr.style.cursor = 'pointer';
-      tr.innerHTML = `<td>${dep}</td><td>${BRL(val)}</td>`;
-      tr.addEventListener('click', () => aplicarFiltro('departamento', dep));
-      tr.addEventListener('mouseenter', () => tr.style.background = 'rgba(110,231,255,.2)');
-      tr.addEventListener('mouseleave', () => tr.style.background = '');
-      tbodyDep.appendChild(tr);
-    });
-
-    // Tabela por funcionário
-    const tbodyFunc = document.getElementById('tbody-func');
-    TOTAL_FUNC.forEach(([nome, val])=>{
-      const tr=document.createElement('tr');
-      tr.style.cursor = 'pointer';
-      tr.innerHTML = `<td>${nome}</td><td>${BRL(val)}</td>`;
-      tr.addEventListener('click', () => aplicarFiltro('funcionario', nome));
-      tr.addEventListener('mouseenter', () => tr.style.background = 'rgba(110,231,255,.2)');
-      tr.addEventListener('mouseleave', () => tr.style.background = '');
-      tbodyFunc.appendChild(tr);
-    });
-
-    // Total Geral
-    document.getElementById('totalGeral').textContent = BRL(TOTAL_GERAL);
-  </script>
+        // Total Geral inicial
+        document.getElementById('totalGeral').textContent = BRL(TOTAL_GERAL);
+    </script>
 </body>
 </html>
