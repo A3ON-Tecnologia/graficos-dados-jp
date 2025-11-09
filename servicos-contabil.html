@@ -265,7 +265,34 @@
                 </table>
             </div>
         </section>
-    </main>
+    
+        <section class="card">
+            <h2>Tabela Completa de Dados (198 registros)</h2>
+            <div style="overflow-x: auto;">
+                <table class="table-detalhada" id="tabelaCompleta">
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>EMPRESA</th>
+                            <th>TRIBUTAÇÃO</th>
+                            <th>CONTABIL</th>
+                            <th>COMPETENCIA</th>
+                            <th>DATA CONCLUSÃO</th>
+                            <th>OBSERVAÇÕES</th>
+                            <th>QUEM CONFERIU</th>
+                            <th>COLABORADOR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyTabelaCompleta"></tbody>
+                </table>
+            </div>
+            <div id="paginacaoContainer" style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top:15px;">
+                <button id="btnAnterior" class="nav-button">Anterior</button>
+                <span id="infoPagina"></span>
+                <button id="btnProximo" class="nav-button">Próximo</button>
+            </div>
+        </section>
+</main>
 
     <script>
         Chart.register(ChartDataLabels);
@@ -720,6 +747,2245 @@
             // Inicializa a tabela (agora usa a função de filtro, que por padrão é "TODOS")
             filtrarTabela(); 
         });
-    </script>
+    
+// =================================================================
+// TABELA COMPLETA (ARRAY DE OBJETOS) + PAGINAÇÃO
+// =================================================================
+const DADOS_TABELA_COMPLETA = [
+  {
+    "numero": "949",
+    "empresa": "AGUA MINERAL REGENERADORA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "SEM MOVIMENTO",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-07-22",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "794",
+    "empresa": "ANDERSON CRISTIANO NARDI SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO MENSAL",
+    "competencia": "05 - MAIO",
+    "dataConc": "2025-07-22",
+    "obs": "AGUARDANDO EXTRATO DO MÊS 06/2025",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "575",
+    "empresa": "ÁTRIA VIAGENS, CONSULTORIA E SERVIÇOS LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO MENSAL",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-07-23",
+    "obs": "CONTABIL PRONTO ATÉ 06/2025 / RYAN VAI VERIFICAR PARA TIRAR O PLANO DE SAÚDE DA CONTA SALARIOS E REMUNERAÇÕES A PAGAR",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "750",
+    "empresa": "AZO3 TECNOLOGIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO MENSAL",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-07-25",
+    "obs": "AGUARDANDO VIRAR O MÊS",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "917",
+    "empresa": "BR REPRESENTACOES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO MENSAL",
+    "competencia": "07 - JULHO",
+    "dataConc": "2025-08-19",
+    "obs": "INICIO 18/08/25 - COMP 02/2025, 03/2025, 04/2025, 05/2025, 06/2025,07/2025",
+    "conferente": "TANIA",
+    "colaborador": ""
+  },
+  {
+    "numero": "937",
+    "empresa": "BRANCORP",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "910",
+    "empresa": "BRAVO TERRAPLANAGEM LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "827",
+    "empresa": "CAESARS CONSULTORIA & TECNOLOGIA DA INF",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "491",
+    "empresa": "CLÍNICA CLIMAD LTDA - Matriz",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "491-3",
+    "empresa": "CLÍNICA CLIMAD LTDA - Tangará",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "491-4",
+    "empresa": "CLÍNICA CLIMAD LTDA - Treze Tilías",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "914",
+    "empresa": "CLINICA DE MUSICOTERAPIA LUZENTE LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "525",
+    "empresa": "CLÍNICA MEDICA DR. MADEIRA EIRELI",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "507",
+    "empresa": "CLÍNICA MÉDICA TORRICO LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "843",
+    "empresa": "COMPACTERRA LOCAÇÃO DE MÁQUINAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "942",
+    "empresa": "CV DEDETIZADORA E CONTROLE DE PRAGAS URBANAS E RURAIS LTDAF",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "974",
+    "empresa": "DRALX ENGENHARIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "859",
+    "empresa": "E2R CONTABILIDADE E CONSULTORIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "795",
+    "empresa": "EDSON RISSI",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "07 - JULHO",
+    "dataConc": "2025-08-19",
+    "obs": "ENVIADO REL FORNECEDOR WHATS E COMENTADO SOBRE AS GUIAS EM ABERTO - NÃO TEM MOVIMENTO BANCÁRIO",
+    "conferente": "TANIA",
+    "colaborador": ""
+  },
+  {
+    "numero": "451-3",
+    "empresa": "EMW - FILIAL HERVAL D´OESTE/SC",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "2025-08-19",
+    "obs": "21/08 terminado 06/2025",
+    "conferente": "TANIA",
+    "colaborador": ""
+  },
+  {
+    "numero": "451",
+    "empresa": "EMW - TANGARÁ",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "927",
+    "empresa": "ESPAÇO VITAL ACADEMIA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "834",
+    "empresa": "FAST SOLUCOES FINANCEIRAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "855",
+    "empresa": "FINA ARTE SOLUÇÕES ODONTOLOGICAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "839",
+    "empresa": "FISIODAY CLINICA DE FISIOTERAPIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "846",
+    "empresa": "FONTANA & FONTANA REPRESENTAÇÕES COMERCIAIS",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "928",
+    "empresa": "GA ENGENHARIA LTDA.",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "969",
+    "empresa": "GALARDÃO ASSESSORIA TECNICA E TREINAMENTOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "883",
+    "empresa": "IFG TRANSPORTES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "883 - IFG, o cliente pagou duas vezes a guia de 06/2025. Fazer a compensação no próximo fechamento",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "975",
+    "empresa": "J. A. JARSCHEL",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "990",
+    "empresa": "J.GOMES REPRESENTACOES LTDA - início 19/05/2025",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "98",
+    "empresa": "JP CONTÁBIL S/S LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "098-1",
+    "empresa": "JP CONTÁBIL S/S LTDA - FILIAL",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "921",
+    "empresa": "KERN TRANSPORTES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "844",
+    "empresa": "M & M SERVIÇOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "608",
+    "empresa": "M.N SERVIÇOS ADMINISTRATIVOS",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "845",
+    "empresa": "MACEDO ENGENHARIA E CONSULTORIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "798",
+    "empresa": "MC INFO SERVICES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "968",
+    "empresa": "MINERADORA KATARINA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "880",
+    "empresa": "MIORANZA ODONTOLOGIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "950",
+    "empresa": "NASO ARTES PLASTICAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "906",
+    "empresa": "PATRICIA SIMONE KASTELLER",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "808",
+    "empresa": "PDK TECNOLOGIA DA INFORMAÇÃO LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "886",
+    "empresa": "PELENTIR TRANSPORTES",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "789",
+    "empresa": "PICTOM DESIGNER",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "759",
+    "empresa": "PRICEOFF SISTEMAS LTDA - ME",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "987",
+    "empresa": "R&R MECANICA AGRICOLA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "882",
+    "empresa": "ROMANA PSICOLOGIA E TREINAMENTOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "762",
+    "empresa": "SCALABRIN CONSULTORIA AGRÍCOLA LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "804",
+    "empresa": "SCORTEGANHA & ALBERTI ESCAVAÇÕES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "956",
+    "empresa": "SERGINHO VIOLAO E VOZ LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "876",
+    "empresa": "SERGIO CARLOS BALBINOTE SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO MENSAL",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-08-04",
+    "obs": "FALTA LANÇAR 2 VALORES DE 309,46 (DEVE SER ALVARA)",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "909",
+    "empresa": "SILAGEM 3D LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "367",
+    "empresa": "SILVA & DRI AGRONOMOS ASSOCIADOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "874",
+    "empresa": "SOS AUTO SOCORRO TANGARA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "983",
+    "empresa": "TARC INDUTRIAL",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "776",
+    "empresa": "TEREZINHA CELZLEIN BRAMBILLA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "941",
+    "empresa": "TONIALVET SERVIÇOS VETERINÁRIOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "796",
+    "empresa": "TRANSPORTES FRITZEN",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "971",
+    "empresa": "TRANSPORTES MA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "420",
+    "empresa": "TULIPA LOTERIAS LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "803",
+    "empresa": "VANESSA GIOVANA PETRY TREVISAN BALBINOTE – SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "AGUARDANDO PARA MIGRAR DO QESTOR P/ CONTABIT - PROBLEMA EM UM APARTAMENTO ( SE DEVE SER CONTABILIZADO OU NÃO)",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "870",
+    "empresa": "VANESSA HACK FISIOTERAPIA & PILATES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "488",
+    "empresa": "VIAÇÃO FLÓRIDA LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO MENSAL",
+    "competencia": "05 - MAIO",
+    "dataConc": "",
+    "obs": "LANÇAR CDB (500,00) EM AGOSTO",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "877",
+    "empresa": "VINICIUS JOHANN LOPES SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO MENSAL",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-08-27",
+    "obs": "FALTA CONFIRMAR DOIS VALORES DO MÊS 06 COM O CLIENTE, O RESTANTE TÁ OK",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "848",
+    "empresa": "3MZ INCORPORADORA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "",
+    "obs": "LANÇAR SEGURO TOKIO",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "922",
+    "empresa": "AJV ASSESSORIA ADMINISTRATIVA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "",
+    "obs": "LANÇAR A APLICAÇÃO DIARIA",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "531",
+    "empresa": "ARDAVVI",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "CLIENTE TEM UMA GUIA DE IRPJ EM ABERTO, FOI ENVIADO E AVISADO DUAS VEZES PARA FAZER O PAGAMENTO, O MESMO NÃO RESPONDEU.",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "657",
+    "empresa": "BALBINOTI REPRESENTAÇÕES",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "",
+    "obs": "FALTA LANÇAR AS APLICAÇÕES (AGUARDANDO EXTRATOS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "976",
+    "empresa": "BOTTEGA E BANDIERA",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "EMPRÉSTIMO DE 500 MIL FOI LANÇADO?",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "747",
+    "empresa": "EPR EMPREENDIMENTOS IMOBILIÁRIOS",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "200",
+    "empresa": "HOSPITAL SAO LUCAS LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "923",
+    "empresa": "LUIZ RICARDO PRESTES DE SOUZA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "VERIFICAR AS NOTAS PAGAS POR BANCO E CONSTAM COMO LANÇADAS NO CAIXA",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "847",
+    "empresa": "MVP AVIAÇÃO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "363",
+    "empresa": "RIO BONITO FORCA E LUZ LTDA - Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "MÊS 6 - 7 - 8 NÃO TEM NADA NA PASTA (ARQUIVOS FISICOS?)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "986",
+    "empresa": "VANI EMPREENDIMENTOS",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "851",
+    "empresa": "WK INCORPORADORA",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "CONFERIR VALORES EXTRATO BRADESCO CDB, TALVEZ TENHA SIDO LANÇADO COM VALORES DIVERGENTES - PARCELAMENTOS NA 98 AJUSTAR",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "642",
+    "empresa": "ZAAL",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "787",
+    "empresa": "CANTU ABASTECEDORA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "774",
+    "empresa": "CANTU AGROPECUARIA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "947",
+    "empresa": "INCORPORADORA DONA LOURDES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "721",
+    "empresa": "INDUSTRIA DE PAPEIS FORTES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "TEM UMA COTA NO VALOR DE R$ 252,87 QUE FOI LANÇADA NOS MESES (04-05-06) NOS DEMAIS NÃO TEM EXTRATO MAS É O MESMO VALOR",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "945",
+    "empresa": "SÃO LUCAS ADMINISTRAÇÃO E PARTICIPAÇÃO",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "765",
+    "empresa": "AGROPECUARIA ROSSATO 3JR LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "946",
+    "empresa": "BAPE PARTICIPACOES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "VERIFICAR ESCRITURA MÊS 06/2025",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "580",
+    "empresa": "C&P INDUSTRIA DE EMBALAGENS LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "VERIFICAR PARCELAMENTOS (JANEIRO - FEVEREIRO)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "548",
+    "empresa": "COOPERATIVA AGRO-INDUSTRIAL DE DIANOPOLIS - Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "810",
+    "empresa": "EMAGRECER, NUTRICAO E ESTETICA JR LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "198",
+    "empresa": "FRIGUZZI TANGARA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "671",
+    "empresa": "INCORPORADORA DE IMOVEIS BOM FUTURO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "590",
+    "empresa": "IRMAOS BRESSAN S/A IMOVEIS - Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "359",
+    "empresa": "METALURGICA SLONGO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "665",
+    "empresa": "MONTE CARVALHO TRANSPORTES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "763",
+    "empresa": "PRIMOS AGROPECUARIA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "160",
+    "empresa": "SERRARIA PASETTO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "655",
+    "empresa": "TRANSPORTES HACK & SLONGO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "788",
+    "empresa": "VALESAN ENGENHARIA E CONSTRUÇÕES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "690",
+    "empresa": "W & F SLONGO TRANSPORTES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "992",
+    "empresa": "S. ALBERTI TECNOLOGIA",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-16",
+    "obs": "",
+    "conferente": "PABLO",
+    "colaborador": ""
+  },
+  {
+    "numero": "",
+    "empresa": "AGUA MINERAL REGENERADORA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-07-22",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "794",
+    "empresa": "ANDERSON CRISTIANO NARDI SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "05 - MAIO",
+    "dataConc": "2025-07-22",
+    "obs": "",
+    "conferente": "AGUARDANDO EXTRATO DO MÊS 06/2025",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "575",
+    "empresa": "ÁTRIA VIAGENS, CONSULTORIA E SERVIÇOS LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-20",
+    "obs": "Aguardando IKE dis lucro reinf 06/2025 e 07/2025 - 21/10 Tania",
+    "conferente": "CONTABIL PRONTO ATÉ 09/2025",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "750",
+    "empresa": "AZO3 TECNOLOGIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-07-25",
+    "obs": "",
+    "conferente": "AGUARDANDO VIRAR O MÊS",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "917",
+    "empresa": "BR REPRESENTACOES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "S/M",
+    "competencia": "07 - JULHO",
+    "dataConc": "2025-08-19",
+    "obs": "",
+    "conferente": "INICIO 18/08/25 - COMP 02/2025, 03/2025, 04/2025, 05/2025, 06/2025,07/2025",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "937",
+    "empresa": "BRANCORP",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-21",
+    "obs": "OK",
+    "conferente": "Enviado Balancete ao cliente pediu 22/10/2025 Tania",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "910",
+    "empresa": "BRAVO TERRAPLANAGEM LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-30",
+    "obs": "FAZER",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "827",
+    "empresa": "CAESARS CONSULTORIA & TECNOLOGIA DA INF",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "491",
+    "empresa": "CLÍNICA CLIMAD LTDA - Matriz",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "VER SOBRES A CONTAS",
+    "colaborador": ""
+  },
+  {
+    "numero": "491-3",
+    "empresa": "CLÍNICA CLIMAD LTDA - Tangará",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "491-4",
+    "empresa": "CLÍNICA CLIMAD LTDA - Treze Tilías",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "914",
+    "empresa": "CLINICA DE MUSICOTERAPIA LUZENTE LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "525",
+    "empresa": "CLÍNICA MEDICA DR. MADEIRA EIRELI",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "Solicitado dct 27/10/2025",
+    "colaborador": ""
+  },
+  {
+    "numero": "507",
+    "empresa": "CLÍNICA MÉDICA TORRICO LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "Tania/Anderson vai verificar para liberar acesso essa semana ao Sicoob Internet Banking",
+    "colaborador": ""
+  },
+  {
+    "numero": "843",
+    "empresa": "COMPACTERRA LOCAÇÃO DE MÁQUINAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "942",
+    "empresa": "CV DEDETIZADORA E CONTROLE DE PRAGAS URBANAS E RURAIS LTDAF",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "974",
+    "empresa": "DRALX ENGENHARIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "valores extranhos lançar contra antecipação de lucros - trabalhar com valores inteiros",
+    "colaborador": ""
+  },
+  {
+    "numero": "859",
+    "empresa": "E2R CONTABILIDADE E CONSULTORIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "valores extranhos lançar contra antecipação de lucros - trabalhar com valores inteiros - unimed ver com ZE",
+    "colaborador": ""
+  },
+  {
+    "numero": "795",
+    "empresa": "EDSON RISSI",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "07 - JULHO",
+    "dataConc": "2025-08-19",
+    "obs": "",
+    "conferente": "ENVIADO REL FORNECEDOR WHATS E COMENTADO SOBRE AS GUIAS EM ABERTO - NÃO TEM MOVIMENTO BANCÁRIO Baixar contra Caixa CFME Tadeu - 01/10/2025",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "451-3",
+    "empresa": "EMW - FILIAL HERVAL D´OESTE/SC",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-30",
+    "obs": "",
+    "conferente": "21/08 terminado 06/2025",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "451",
+    "empresa": "EMW - TANGARÁ",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-30",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "927",
+    "empresa": "ESPAÇO VITAL ACADEMIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Cássio - vai notificar cliente para registrar todo recebimento com NF data do recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "834",
+    "empresa": "FAST SOLUCOES FINANCEIRAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "855",
+    "empresa": "FINA ARTE SOLUÇÕES ODONTOLOGICAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "839",
+    "empresa": "FISIODAY CLINICA DE FISIOTERAPIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "846",
+    "empresa": "FONTANA & FONTANA REPRESENTAÇÕES COMERCIAIS",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "928",
+    "empresa": "GA ENGENHARIA LTDA.",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "969",
+    "empresa": "GALARDÃO ASSESSORIA TECNICA E TREINAMENTOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Recebimento e valores divergentes contra antecipação de lucros - VER IMPOSTO",
+    "colaborador": ""
+  },
+  {
+    "numero": "883",
+    "empresa": "IFG TRANSPORTES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "883 - IFG, o cliente pagou duas vezes a guia de 06/2025. Fazer a compensação no próximo fechamento - Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "975",
+    "empresa": "J. A. JARSCHEL",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "990",
+    "empresa": "J.GOMES REPRESENTACOES LTDA - início 19/05/2025",
+    "tributacao": "SIMPLES",
+    "contabil": "S/M",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Tadeu/Cássio ver para baixar",
+    "colaborador": ""
+  },
+  {
+    "numero": "98",
+    "empresa": "JP CONTÁBIL S/S LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "098-1",
+    "empresa": "JP CONTÁBIL S/S LTDA - FILIAL",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "921",
+    "empresa": "KERN TRANSPORTES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Recebimento e valores divergentes contra antecipação de lucros - ver se tem NF combustivel, pneu, lançar NF a vista",
+    "colaborador": ""
+  },
+  {
+    "numero": "844",
+    "empresa": "M & M SERVIÇOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "conferir folhas pagamentos e orientar sobre cartão",
+    "colaborador": ""
+  },
+  {
+    "numero": "608",
+    "empresa": "M.N SERVIÇOS ADMINISTRATIVOS",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "845",
+    "empresa": "MACEDO ENGENHARIA E CONSULTORIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "798",
+    "empresa": "MC INFO SERVICES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-24",
+    "obs": "OK",
+    "conferente": "Aguarda importar Questor para contabit - fazer a baixa sócio e ver Pladisa com Ryan",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "968",
+    "empresa": "MINERADORA KATARINA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "880",
+    "empresa": "MIORANZA ODONTOLOGIA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-29",
+    "obs": "",
+    "conferente": "AJUSTAR APLICAÇÃO NO MÊS 6 FALTA EXTRATO",
+    "colaborador": ""
+  },
+  {
+    "numero": "950",
+    "empresa": "NASO ARTES PLASTICAS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Cássio chamar urgente - Recebimento e valores divergentes contra antecipação de lucros - ver cartão",
+    "colaborador": ""
+  },
+  {
+    "numero": "906",
+    "empresa": "PATRICIA SIMONE KASTELLER",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "FALAR SOBRE OS GASTOS DO CARTÃO, NÃO PODE COISAS SEM NOTA E PESSOA FISICA",
+    "colaborador": ""
+  },
+  {
+    "numero": "808",
+    "empresa": "PDK TECNOLOGIA DA INFORMAÇÃO LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "ver sobre Plano Saude - Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "886",
+    "empresa": "PELENTIR TRANSPORTES",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Cássio - Chamar o cliente - Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "789",
+    "empresa": "PICTOM DESIGNER",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "759",
+    "empresa": "PRICEOFF SISTEMAS LTDA - ME",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-28",
+    "obs": "FAZER URGENTE",
+    "conferente": "Cássio - despesas de pedagio se não tem veiculo - lançar contra antecipação lucros -",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "987",
+    "empresa": "R&R MECANICA AGRICOLA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "882",
+    "empresa": "ROMANA PSICOLOGIA E TREINAMENTOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-28",
+    "obs": "FAZER",
+    "conferente": "FALAR SOBRE OS GASTOS DO CARTÃO, NÃO PODE COISAS SEM NOTA E PESSOA FISICA",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "762",
+    "empresa": "SCALABRIN CONSULTORIA AGRÍCOLA LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-10-01",
+    "obs": "FAZER",
+    "conferente": "Solicitado dct 27/10/2025 Tania",
+    "colaborador": ""
+  },
+  {
+    "numero": "804",
+    "empresa": "SCORTEGANHA & ALBERTI ESCAVAÇÕES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Acompanhar e compartilhar com tadeu como está",
+    "colaborador": ""
+  },
+  {
+    "numero": "956",
+    "empresa": "SERGINHO VIOLAO E VOZ LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Cássio - chamar e orientar cartão",
+    "colaborador": ""
+  },
+  {
+    "numero": "876",
+    "empresa": "SERGIO CARLOS BALBINOTE SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-22",
+    "obs": "OK",
+    "conferente": "REPASSADO IKE 309,46 ISS FIXO (JP enviou errado 2 vezes e cliente pagou)",
+    "colaborador": "Tania"
+  },
+  {
+    "numero": "909",
+    "empresa": "SILAGEM 3D LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Chamar cliente -",
+    "colaborador": ""
+  },
+  {
+    "numero": "367",
+    "empresa": "SILVA & DRI AGRONOMOS ASSOCIADOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "nf 09/2025 fazer a guia e baixar",
+    "colaborador": ""
+  },
+  {
+    "numero": "874",
+    "empresa": "SOS AUTO SOCORRO TANGARA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "FAZER",
+    "conferente": "Solicitado dct 27/10/2025 Tania",
+    "colaborador": ""
+  },
+  {
+    "numero": "983",
+    "empresa": "TARC INDUTRIAL",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-27",
+    "obs": "",
+    "conferente": "valores que estão sendo transferido pela conta Bancária para CPF Tadeu - lançar contra Antecipação de Lucros - 27/10/25 Tania - Darli está verificando sobre INSS ref 05/2025 - ver Tadeu Caixa R$ 53.000,00 se pode fazer dis lucros",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "776",
+    "empresa": "TEREZINHA CELZLEIN BRAMBILLA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "Recebimento e valores divergentes contra antecipação de lucros",
+    "colaborador": ""
+  },
+  {
+    "numero": "941",
+    "empresa": "TONIALVET SERVIÇOS VETERINÁRIOS LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "796",
+    "empresa": "TRANSPORTES FRITZEN",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO",
+    "colaborador": ""
+  },
+  {
+    "numero": "971",
+    "empresa": "TRANSPORTES MA LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "01 - JANEIRO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "420",
+    "empresa": "TULIPA LOTERIAS LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "07 - JULHO",
+    "dataConc": "2025-08-26",
+    "obs": "",
+    "conferente": "",
+    "colaborador": ""
+  },
+  {
+    "numero": "803",
+    "empresa": "VANESSA GIOVANA PETRY TREVISAN BALBINOTE – SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-24",
+    "obs": "OK",
+    "conferente": "",
+    "colaborador": "TANIA"
+  },
+  {
+    "numero": "870",
+    "empresa": "VANESSA HACK FISIOTERAPIA & PILATES LTDA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-10-27",
+    "obs": "FAZER URGENTE",
+    "conferente": "FALTA AJUSTAR OS VALORES PAGOS DO EMPRÉSTIMO",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "488",
+    "empresa": "VIAÇÃO FLÓRIDA LTDA ME",
+    "tributacao": "SIMPLES",
+    "contabil": "S/M",
+    "competencia": "05 - MAIO",
+    "dataConc": "",
+    "obs": "",
+    "conferente": "LANÇAR CDB (500,00) EM AGOSTO",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "877",
+    "empresa": "VINICIUS JOHANN LOPES SOCIEDADE INDIVIDUAL DE ADVOCACIA",
+    "tributacao": "SIMPLES",
+    "contabil": "MOVIMENTO",
+    "competencia": "06 - JUNHO",
+    "dataConc": "2025-08-27",
+    "obs": "FAZER URGENTE",
+    "conferente": "FALTA CONFIRMAR DOIS VALORES DO MÊS 06 COM O CLIENTE, O RESTANTE TÁ OK",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "848",
+    "empresa": "3MZ INCORPORADORA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-15",
+    "obs": "",
+    "conferente": "LANÇAR SEGURO TOKIO",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "922",
+    "empresa": "AJV ASSESSORIA ADMINISTRATIVA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-22",
+    "obs": "",
+    "conferente": "LANÇAR A APLICAÇÃO DIARIA",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "531",
+    "empresa": "ARDAVVI",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-23",
+    "obs": "",
+    "conferente": "CLIENTE TEM UMA GUIA DE IRPJ EM ABERTO, FOI ENVIADO E AVISADO DUAS VEZES PARA FAZER O PAGAMENTO, O MESMO NÃO RESPONDEU.",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "657",
+    "empresa": "BALBINOTI REPRESENTAÇÕES",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-23",
+    "obs": "",
+    "conferente": "VER COM TADEU CAIXA NEGATIVO DESDE 08/05/2025, CONTA 098 R$ 8.077,97 - valor ref cota capital não lançada outros meses",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "976",
+    "empresa": "BOTTEGA E BANDIERA",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "",
+    "conferente": "EMPRÉSTIMO DE 500 MIL FOI LANÇADO?",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "747",
+    "empresa": "EPR EMPREENDIMENTOS IMOBILIÁRIOS",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-20",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "200",
+    "empresa": "HOSPITAL SAO LUCAS LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-15",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "923",
+    "empresa": "LUIZ RICARDO PRESTES DE SOUZA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-14",
+    "obs": "",
+    "conferente": "VERIFICAR AS NOTAS PAGAS POR BANCO E CONSTAM COMO LANÇADAS NO CAIXA",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "847",
+    "empresa": "MVP AVIAÇÃO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-17",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "363",
+    "empresa": "RIO BONITO FORCA E LUZ LTDA - Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "08 - AGOSTO",
+    "dataConc": "2025-09-17",
+    "obs": "",
+    "conferente": "MÊS 6 - 7 - 8 NÃO TEM NADA NA PASTA (ARQUIVOS FISICOS?)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "986",
+    "empresa": "VANI EMPREENDIMENTOS",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-16",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "851",
+    "empresa": "WK INCORPORADORA",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-16",
+    "obs": "",
+    "conferente": "CONFERIR VALORES EXTRATO BRADESCO CDB, TALVEZ TENHA SIDO LANÇADO COM VALORES DIVERGENTES - PARCELAMENTOS NA 98 AJUSTAR",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "642",
+    "empresa": "ZAAL",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-14",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "787",
+    "empresa": "CANTU ABASTECEDORA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-15",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "774",
+    "empresa": "CANTU AGROPECUARIA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-15",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "947",
+    "empresa": "INCORPORADORA DONA LOURDES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-14",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "721",
+    "empresa": "INDUSTRIA DE PAPEIS FORTES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-14",
+    "obs": "",
+    "conferente": "TEM UMA COTA NO VALOR DE R$ 252,87 QUE FOI LANÇADA NOS MESES (04-05-06) NOS DEMAIS NÃO TEM EXTRATO MAS É O MESMO VALOR",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "945",
+    "empresa": "SÃO LUCAS ADMINISTRAÇÃO E PARTICIPAÇÃO",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-14",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "765",
+    "empresa": "AGROPECUARIA ROSSATO 3JR LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-18",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "946",
+    "empresa": "BAPE PARTICIPACOES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-18",
+    "obs": "",
+    "conferente": "VERIFICAR ESCRITURA MÊS 06/2025",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "580",
+    "empresa": "C&P INDUSTRIA DE EMBALAGENS LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-13",
+    "obs": "",
+    "conferente": "VERIFICAR PARCELAMENTOS (JANEIRO - FEVEREIRO)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "548",
+    "empresa": "COOPERATIVA AGRO-INDUSTRIAL DE DIANOPOLIS - Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-18",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "810",
+    "empresa": "EMAGRECER, NUTRICAO E ESTETICA JR LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-09-16",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "198",
+    "empresa": "FRIGUZZI TANGARA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-20",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "671",
+    "empresa": "INCORPORADORA DE IMOVEIS BOM FUTURO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-09-16",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "590",
+    "empresa": "IRMAOS BRESSAN S/A IMOVEIS - Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-13",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "359",
+    "empresa": "METALURGICA SLONGO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-20",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "665",
+    "empresa": "MONTE CARVALHO TRANSPORTES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-14",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "763",
+    "empresa": "PRIMOS AGROPECUARIA LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-13",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "160",
+    "empresa": "SERRARIA PASETTO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-13",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "655",
+    "empresa": "TRANSPORTES HACK & SLONGO LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-13",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "788",
+    "empresa": "VALESAN ENGENHARIA E CONSTRUÇÕES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-10",
+    "obs": "",
+    "conferente": "Lançar na Prefeitura Videira Protocolo - SEM MOVIMENTO EM 2025 (NADA NAS PASTAS) tem alvara 1 vez por ano Março",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "690",
+    "empresa": "W & F SLONGO TRANSPORTES LTDA-Matriz",
+    "tributacao": "PRESUMIDO",
+    "contabil": "S/M",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-10",
+    "obs": "",
+    "conferente": "SEM MOVIMENTO EM 2025 (NADA NAS PASTAS)",
+    "colaborador": "PABLO"
+  },
+  {
+    "numero": "992",
+    "empresa": "S. ALBERTI TECNOLOGIA",
+    "tributacao": "PRESUMIDO",
+    "contabil": "MOVIMENTO",
+    "competencia": "09 - SETEMBRO",
+    "dataConc": "2025-10-10",
+    "obs": "",
+    "conferente": "",
+    "colaborador": "PABLO"
+  }
+];
+
+let paginaAtualCompleta = 1;
+const registrosPorPaginaCompleta = 10;
+
+function renderizarTabelaCompleta() {
+    const tbody = document.getElementById('tbodyTabelaCompleta');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    const inicio = (paginaAtualCompleta - 1) * registrosPorPaginaCompleta;
+    const fim = inicio + registrosPorPaginaCompleta;
+    const dadosPagina = DADOS_TABELA_COMPLETA.slice(inicio, fim);
+
+    dadosPagina.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${item.numero}</td>
+            <td>${item.empresa}</td>
+            <td>${item.tributacao}</td>
+            <td>${item.contabil}</td>
+            <td>${item.competencia}</td>
+            <td>${item.dataConc}</td>
+            <td>${item.obs}</td>
+            <td>${item.conferente}</td>
+            <td>${item.colaborador}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    const totalPaginas = Math.ceil(DADOS_TABELA_COMPLETA.length / registrosPorPaginaCompleta);
+    const info = document.getElementById('infoPagina');
+    if (info) info.innerText = `Página ${paginaAtualCompleta} de ${totalPaginas}`;
+
+    const btnAnt = document.getElementById('btnAnterior');
+    const btnProx = document.getElementById('btnProximo');
+    if (btnAnt) btnAnt.disabled = paginaAtualCompleta === 1;
+    if (btnProx) btnProx.disabled = paginaAtualCompleta === totalPaginas;
+}
+
+function bindPaginacaoCompleta() {
+    const btnAnt = document.getElementById('btnAnterior');
+    const btnProx = document.getElementById('btnProximo');
+    if (btnAnt) btnAnt.addEventListener('click', () => { 
+        if (paginaAtualCompleta > 1) { paginaAtualCompleta--; renderizarTabelaCompleta(); }
+    });
+    if (btnProx) btnProx.addEventListener('click', () => {
+        const totalPaginas = Math.ceil(DADOS_TABELA_COMPLETA.length / registrosPorPaginaCompleta);
+        if (paginaAtualCompleta < totalPaginas) { paginaAtualCompleta++; renderizarTabelaCompleta(); }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    bindPaginacaoCompleta();
+    renderizarTabelaCompleta();
+});
+</script>
 </body>
 </html>
