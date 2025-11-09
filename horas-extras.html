@@ -79,7 +79,7 @@
 
         /* Bloco do total geral */
         .total { width: 95%; display: flex; justify-content: center; align-items: center; margin: 8px 0 0 }
-        .badge { background: rgba(16, 185, 129, .25); border: 1px solid rgba(16, 185, 129, .5); padding: 10px 14px; border-radius: 12px; color: #d7ffee; font-weight: 700 }
+        .badge { background: rgba(16, 185, 129, .25); border: 1px solid rgba(16, 185, 129, .5); padding: 10px 14px; border-radius: 12px; color: #d7ffee; font-weight: 700; margin-top: 20px; }
 
         /* Estilos para interatividade */
         tr { transition: background-color 0.2s ease, opacity 0.3s ease }
@@ -397,7 +397,11 @@
                         }
                     },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.1)' }, ticks: { color: '#e0e0e0', callback: (v) => BRL(v) } },
+                        y: { 
+                          beginAtZero: true, 
+                          grid: { color: 'rgba(255,255,255,.1)' }, 
+                          ticks: { color: '#e0e0e0', 
+                          callback: (v) => BRL(v) } },
                         x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#e0e0e0', maxRotation: 45, minRotation: 45 } }
                     },
                     plugins: {
@@ -555,7 +559,7 @@
                         }
                     },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,.1)' }, ticks: { color: '#e0e0e0', callback: (v) => BRL(v) } },
+                        y: { beginAtZero: true, max: 12000, grid: { color: 'rgba(255,255,255,.1)' }, ticks: { color: '#e0e0e0', callback: (v) => BRL(v) } },
                         x: { grid: { color: 'rgba(255,255,255,.05)' }, ticks: { color: '#e0e0e0', maxRotation: 45, minRotation: 45 } }
                     },
                     plugins: {
