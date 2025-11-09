@@ -1,16 +1,289 @@
-datalabels: {
-  anchor: 'end',
-  align: 'top',
-  color: '#fff',
-  font: { 
-    weight: 'bold', 
-    size: 13
-  },
-  formatter: (value) => value,
-  backgroundColor: function(context) {
-    return context.dataset.backgroundColor.replace('0.9','0.8');
-  },
-  borderRadius: 4,
-  padding: 6,
-  offset: 2
-}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SETOR SERVIÇOS - CONTÁBIL</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    
+    <style>
+        /* @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Segoe+UI:wght@400;600;700&display=swap'); */
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* --- Barra Superior e Botões --- */
+        .top-bar {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #6ee7ff; /* Cor neon */
+            max-width: 1400px;
+            margin: 0 auto 30px;
+        }
+
+        h1 {
+            color: #6ee7ff;
+            text-shadow: 0 0 10px rgba(110,231,255,0.5);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.2rem;
+            margin: 0;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: 600;
+            border: 1px solid #6ee7ff;
+            background-color: rgba(110,231,255,0.15);
+            color: #6ee7ff;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-button:hover {
+            background-color: rgba(110,231,255,0.3);
+            box-shadow: 0 0 15px rgba(110,231,255,0.4);
+        }
+
+        /* --- Estrutura dos Gráficos Lado a Lado --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Dois gráficos em duas colunas */
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto 30px;
+        }
+
+        /* --- Cards de Gráfico --- */
+        .card {
+            background: rgba(44, 83, 100, 0.2);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            padding: 25px;
+            transition: all 0.3s;
+        }
+        
+        .card h2 {
+            margin: 0 0 15px;
+            font-weight: 700;
+            color: #d6e6ff;
+            text-align:center;
+            font-size: 1.4rem;
+            border-bottom: 1px solid rgba(110,231,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        /* --- Contêiner do Gráfico (Define a Altura) --- */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 450px; 
+        }
+
+        /* Responsividade */
+        @media (max-width: 900px){
+            .grid-container { grid-template-columns: 1fr; } /* Empilha gráficos em telas menores */
+            .chart-container { height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <h1>SERVIÇOS - CONTÁBIL</h1>
+        <h2>COMPARAÇÃO DE EMPRESAS POR TRIBUTAÇÃO</h2>
+        <div class="buttons-container">
+            <a href="index.html" class="nav-button">Home</a>
+            <a href="setor-serviços.html" class="nav-button">Setor Serviços</a>
+        </div>
+    </div>
+
+    <main class="grid-container">
+
+        <section class="card">
+            <h2>Simples Nacional</h2>
+            <div class="chart-container">
+                <canvas id="graficoSimplesNacional"></canvas>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Lucro Presumido</h2>
+            <div class="chart-container">
+                <canvas id="graficoLucroPresumido"></canvas>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        // =================================================================
+        // DADOS CONSOLIDADOS E MAPEAMENTO
+        // Baseado no print e no arquivo "SERVIÇOS - CONTABIL.csv"
+        // =================================================================
+        const DADOS_BRUTOS_GRAFICOS = [
+            // MÊS | TRIBUTAÇÃO | QTD | COMPETÊNCIA
+            // Simples Nacional - Agosto
+            { mes: '01 - JANEIRO', tributacao: 'SIMPLES NACIONAL', qtd: 56, competencia: 'AGOSTO' },
+            { mes: '05 - MAIO', tributacao: 'SIMPLES NACIONAL', qtd: 2, competencia: 'AGOSTO' },
+            { mes: '06 - JUNHO', tributacao: 'SIMPLES NACIONAL', qtd: 5, competencia: 'AGOSTO' },
+            { mes: '07 - JULHO', tributacao: 'SIMPLES NACIONAL', qtd: 2, competencia: 'AGOSTO' },
+            // Lucro Presumido - Agosto
+            { mes: '08 - AGOSTO', tributacao: 'LUCRO PRESUMIDO', qtd: 6, competencia: 'AGOSTO' },
+            { mes: '09 - SETEMBRO', tributacao: 'LUCRO PRESUMIDO', qtd: 32, competencia: 'SETEMBRO' },
+            
+            // Simples Nacional - Setembro
+            { mes: '01 - JANEIRO', tributacao: 'SIMPLES NACIONAL', qtd: 46, competencia: 'SETEMBRO' },
+            { mes: '05 - MAIO', tributacao: 'SIMPLES NACIONAL', qtd: 2, competencia: 'SETEMBRO' },
+            { mes: '06 - JUNHO', tributacao: 'SIMPLES NACIONAL', qtd: 3, competencia: 'SETEMBRO' },
+            { mes: '07 - JULHO', tributacao: 'SIMPLES NACIONAL', qtd: 3, competencia: 'SETEMBRO' },
+            { mes: '08 - AGOSTO', tributacao: 'SIMPLES NACIONAL', qtd: 6, competencia: 'SETEMBRO' },
+            { mes: '09 - SETEMBRO', tributacao: 'SIMPLES NACIONAL', qtd: 5, competencia: 'SETEMBRO' },
+            // Lucro Presumido - Setembro
+            { mes: '08 - AGOSTO', tributacao: 'LUCRO PRESUMIDO', qtd: 34, competencia: 'SETEMBRO' },
+            
+            // Os dados da tabela sugerem que há mais meses/tributações, 
+            // mas vamos focar apenas no que está no print e na sua solicitação.
+        ];
+
+        // Meses de referência do eixo Y, na ordem desejada (do topo para baixo)
+        const LABELS_MESES_Y = [
+            '01 - JANEIRO',
+            '05 - MAIO',
+            '06 - JUNHO',
+            '07 - JULHO',
+            '08 - AGOSTO',
+            '09 - SETEMBRO' // Incluído, pois aparece no dado de Lucro Presumido
+        ].map(m => m.split(' - ')[1]); // Retira o número e deixa só o nome do mês
+
+        const CORES = {
+            AGOSTO: 'rgba(110, 231, 255, 0.9)',   // Ciano (Competência anterior)
+            SETEMBRO: 'rgba(139, 92, 246, 0.9)', // Roxo (Competência atual)
+            DATALABEL_BG: 'rgba(255, 255, 255, 0.9)', // Fundo branco para datalabels
+            DATALABEL_TEXT: '#0f2027' // Texto escuro
+        };
+
+        // =================================================================
+        // FUNÇÃO DE PROCESSAMENTO DE DADOS
+        // Prepara os dados brutos para o formato Chart.js
+        // =================================================================
+        function processarDadosPorTributacao(tributacao) {
+            const dadosFiltrados = DADOS_BRUTOS_GRAFICOS.filter(d => d.tributacao.toUpperCase().includes(tributacao.toUpperCase()));
+
+            // Mapeia a quantidade (QTD) para cada mês (Y) e competência (Dataset)
+            const dataAgosto = [];
+            const dataSetembro = [];
+
+            LABELS_MESES_Y.forEach(mesNome => {
+                const mesFull = DADOS_BRUTOS_GRAFICOS.find(d => d.mes.includes(mesNome))?.mes || null;
+
+                const qtdAgosto = dadosFiltrados.find(d => d.mes === mesFull && d.competencia === 'AGOSTO')?.qtd || 0;
+                const qtdSetembro = dadosFiltrados.find(d => d.mes === mesFull && d.competencia === 'SETEMBRO')?.qtd || 0;
+
+                dataAgosto.push(qtdAgosto);
+                dataSetembro.push(qtdSetembro);
+            });
+
+            return { dataAgosto, dataSetembro };
+        }
+
+        // =================================================================
+        // FUNÇÃO DE CRIAÇÃO DO GRÁFICO (GRÁFICO HORIZONTAL)
+        // =================================================================
+        function criarGraficoTributacao(elementId, titulo, dados) {
+            new Chart(document.getElementById(elementId).getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: LABELS_MESES_Y, // Meses no Eixo Y
+                    datasets: [
+                        {
+                            label: 'AGOSTO',
+                            data: dados.dataAgosto,
+                            backgroundColor: CORES.AGOSTO,
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.8,
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'SETEMBRO',
+                            data: dados.dataSetembro,
+                            backgroundColor: CORES.SETEMBRO,
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.8,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y', // GRÁFICO HORIZONTAL
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { // Eixo X é a QUANTIDADE
+                            stacked: false, // Barras separadas para as competências
+                            beginAtZero: true,
+                            max: 60,
+                            ticks: { color: '#e0e0e0', font: { family: 'Segoe UI' } },
+                            title: { display: true, text: 'Quantidade de Empresas (QTD)', color: '#d6e6ff' },
+                            grid: { color: 'rgba(255,255,255,0.1)' }
+                        },
+                        y: { // Eixo Y é o MÊS
+                            stacked: false,
+                            ticks: { color: '#e0e0e0', font: { family: 'Orbitron', size: 14 } },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0', font: { size: 12 } } },
+                        tooltip: { enabled: false },
+                        // DATALABELS (VALORES NAS BARRAS)
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'right', // Alinha à direita no gráfico horizontal
+                            color: CORES.DATALABEL_TEXT, 
+                            font: { weight: 'bold', size: 14 },
+                            formatter: (value) => value > 0 ? value : null,
+                            backgroundColor: CORES.DATALABEL_BG,
+                            borderRadius: 4,
+                            padding: 6,
+                            offset: 6
+                        }
+                    }
+                }
+            });
+        }
+
+        // =================================================================
+        // INICIALIZAÇÃO
+        // =================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const dadosSimples = processarDadosPorTributacao('SIMPLES NACIONAL');
+            const dadosPresumido = processarDadosPorTributacao('LUCRO PRESUMIDO');
+            
+            criarGraficoTributacao('graficoSimplesNacional', 'Simples Nacional', dadosSimples);
+            criarGraficoTributacao('graficoLucroPresumido', 'Lucro Presumido', dadosPresumido);
+        });
+    </script>
+</body>
+</html>

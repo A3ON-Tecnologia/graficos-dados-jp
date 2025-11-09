@@ -10,7 +10,7 @@
      
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-      <style>
+      <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -63,7 +63,15 @@
             border-radius: 18px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
             padding: 16px;
-            height: 340px
+            height: 340px;
+            display: flex;
+            flex-direction: column
+        }
+        
+        .card canvas {
+            flex: 1;
+            width: 100% !important;
+            height: 100% !important;
         }
 
         .card h3 {
@@ -206,10 +214,12 @@
 
     <div class="charts">
         <div class="card">
-            <h3>AGOSTO</h3><canvas id="chartAgosto"></canvas>
+            <h3>AGOSTO</h3>
+            <canvas id="chartAgosto" style="width: 100%; height: calc(100% - 30px);"></canvas>
         </div>
         <div class="card">
-            <h3>SETEMBRO</h3><canvas id="chartSetembro"></canvas>
+            <h3>SETEMBRO</h3>
+            <canvas id="chartSetembro" style="width: 100%; height: calc(100% - 30px);"></canvas>
         </div>
     </div>
 
@@ -247,6 +257,9 @@
     </table>
 
     <script>
+        // Registra o plugin Chart.js DataLabels globalmente
+        Chart.register(ChartDataLabels);
+        
         // CORREÇÃO APLICADA AQUI: "Sem acordo" (minúsculo) para bater com os dados.
         const categorias = ['À vista', 'Cortesia', 'Debitar', 'Sem acordo', 'Tadeu H.'];
 
@@ -469,9 +482,6 @@
             });
         }
 
-        // Registra o plugin datalabels
-        Chart.register(ChartDataLabels);
-
         const ctxAgosto = document.getElementById('chartAgosto').getContext('2d');
         const ctxSetembro = document.getElementById('chartSetembro').getContext('2d');
 
@@ -504,9 +514,13 @@
                             size: 13
                         },
                         formatter: (value) => value,
+                        // --- INÍCIO DA CORREÇÃO 1 ---
                         backgroundColor: function(context) {
-                            return context.dataset.backgroundColor.replace('0.9','0.8');
+                            // Acessa a cor correta do array usando o índice da barra
+                            const corDaBarra = context.dataset.backgroundColor[context.dataIndex];
+                            return corDaBarra;
                         },
+                        // --- FIM DA CORREÇÃO 1 ---
                         borderRadius: 4,
                         padding: 6,
                         offset: 2
@@ -544,9 +558,13 @@
                             size: 13
                         },
                         formatter: (value) => value,
+                        // --- INÍCIO DA CORREÇÃO 2 ---
                         backgroundColor: function(context) {
-                            return context.dataset.backgroundColor.replace('0.9','0.8');
+                            // Acessa a cor correta do array usando o índice da barra
+                            const corDaBarra = context.dataset.backgroundColor[context.dataIndex];
+                            return corDaBarra;
                         },
+                        // --- FIM DA CORREÇÃO 2 ---
                         borderRadius: 4,
                         padding: 6,
                         offset: 2
