@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SETOR SERVIÇOS - CONTÁBIL</title>
+    <title>Painel Cybersys | Análise de Tributação Detalhada</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     
     <style>
-        /* @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Segoe+UI:wght@400;600;700&display=swap'); */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Segoe+UI:wght@400;600;700&display=swap');
 
         body {
             margin: 0;
@@ -28,7 +28,7 @@
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 2px solid #6ee7ff; /* Cor neon */
+            border-bottom: 2px solid #6ee7ff; 
             max-width: 1400px;
             margin: 0 auto 30px;
         }
@@ -40,10 +40,16 @@
             font-size: 2.2rem;
             margin: 0;
         }
+        h2 {
+             color: #d6e6ff;
+             font-size: 1.2rem;
+             margin: 5px 0 15px;
+        }
 
         .buttons-container {
             display: flex;
             gap: 15px;
+            margin-top: 15px;
         }
 
         .nav-button {
@@ -64,16 +70,19 @@
             box-shadow: 0 0 15px rgba(110,231,255,0.4);
         }
 
-        /* --- Estrutura dos Gráficos Lado a Lado --- */
+        /* --- Estrutura de Gráficos e Tabela --- */
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Dois gráficos em duas colunas */
+            grid-template-columns: repeat(2, 1fr); 
             gap: 25px;
             max-width: 1400px;
             margin: 0 auto 30px;
         }
+        .grid-container.tabela {
+            grid-template-columns: 1fr; /* Tabela em coluna única */
+        }
 
-        /* --- Cards de Gráfico --- */
+        /* --- Cards --- */
         .card {
             background: rgba(44, 83, 100, 0.2);
             border-radius: 15px;
@@ -82,7 +91,7 @@
             transition: all 0.3s;
         }
         
-        .card h2 {
+        .card > h2 {
             margin: 0 0 15px;
             font-weight: 700;
             color: #d6e6ff;
@@ -92,17 +101,58 @@
             padding-bottom: 10px;
         }
 
-        /* --- Contêiner do Gráfico (Define a Altura) --- */
+        /* --- Contêiner do Gráfico --- */
         .chart-container {
             position: relative;
             width: 100%;
             height: 450px; 
         }
 
+        /* --- Tabela de Detalhe (Estilo Futurista) --- */
+        .table-detalhada {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        .table-detalhada th {
+            background: rgba(139,92,246,0.3); /* Roxo */
+            color: #fff;
+            padding: 12px 16px;
+            text-align: left;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            font-size: 0.85em;
+        }
+        .table-detalhada td {
+            padding: 10px 16px;
+            text-align: left;
+            color: #d0e0ff;
+            font-size: 0.9em;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .table-detalhada tr:nth-child(even) {
+            background: rgba(255,255,255,0.03);
+        }
+        .table-detalhada tr.highlight {
+            background: rgba(110,231,255,0.2) !important; /* Destaque ao clicar/interagir */
+            box-shadow: inset 0 0 10px rgba(110,231,255,0.5);
+            border: 1px solid #6ee7ff;
+            cursor: pointer;
+        }
+        .table-detalhada tr:not(.highlight):hover {
+            background: rgba(110,231,255,0.1);
+            cursor: pointer;
+        }
+
         /* Responsividade */
         @media (max-width: 900px){
-            .grid-container { grid-template-columns: 1fr; } /* Empilha gráficos em telas menores */
+            .grid-container { grid-template-columns: 1fr; } 
             .chart-container { height: 350px; }
+            .table-detalhada th, .table-detalhada td { font-size: 0.8em; }
         }
     </style>
 </head>
@@ -113,34 +163,51 @@
         <h2>COMPARAÇÃO DE EMPRESAS POR TRIBUTAÇÃO</h2>
         <div class="buttons-container">
             <a href="index.html" class="nav-button">Home</a>
-            <a href="setor-serviços.html" class="nav-button">Setor Serviços</a>
+            <a href="setor-servicos.html" class="nav-button">Setor Serviços</a>
         </div>
     </div>
 
     <main class="grid-container">
-
         <section class="card">
             <h2>Simples Nacional</h2>
             <div class="chart-container">
-                <canvas id="graficoSimplesNacional"></canvas>
+                <canvas id="graficoSimplesNacional" onclick="handleChartClick(event, 'SIMPLES NACIONAL')"></canvas>
             </div>
         </section>
 
         <section class="card">
             <h2>Lucro Presumido</h2>
             <div class="chart-container">
-                <canvas id="graficoLucroPresumido"></canvas>
+                <canvas id="graficoLucroPresumido" onclick="handleChartClick(event, 'LUCRO PRESUMIDO')"></canvas>
             </div>
         </section>
+    </main>
 
+    <main class="grid-container tabela">
+        <section class="card">
+            <h2>Detalhe de Empresas (Clique em uma barra do gráfico para filtrar)</h2>
+            <div style="overflow-x: auto;">
+                <table class="table-detalhada">
+                    <thead>
+                        <tr>
+                            <th>Tributação</th>
+                            <th>Mês de Referência</th>
+                            <th>Competência</th>
+                            <th>QTD (Total)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyTabelaDetalhe">
+                        </tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
     <script>
         Chart.register(ChartDataLabels);
 
         // =================================================================
-        // DADOS CONSOLIDADOS E MAPEAMENTO
-        // Baseado no print e no arquivo "SERVIÇOS - CONTABIL.csv"
+        // DADOS PARA OS GRÁFICOS (Resumo por Mês/Competência)
         // =================================================================
         const DADOS_BRUTOS_GRAFICOS = [
             // MÊS | TRIBUTAÇÃO | QTD | COMPETÊNCIA
@@ -151,7 +218,7 @@
             { mes: '07 - JULHO', tributacao: 'SIMPLES NACIONAL', qtd: 2, competencia: 'AGOSTO' },
             // Lucro Presumido - Agosto
             { mes: '08 - AGOSTO', tributacao: 'LUCRO PRESUMIDO', qtd: 6, competencia: 'AGOSTO' },
-            { mes: '09 - SETEMBRO', tributacao: 'LUCRO PRESUMIDO', qtd: 32, competencia: 'SETEMBRO' },
+            { mes: '09 - SETEMBRO', tributacao: 'LUCRO PRESUMIDO', qtd: 32, competencia: 'AGOSTO' },
             
             // Simples Nacional - Setembro
             { mes: '01 - JANEIRO', tributacao: 'SIMPLES NACIONAL', qtd: 46, competencia: 'SETEMBRO' },
@@ -162,36 +229,51 @@
             { mes: '09 - SETEMBRO', tributacao: 'SIMPLES NACIONAL', qtd: 5, competencia: 'SETEMBRO' },
             // Lucro Presumido - Setembro
             { mes: '08 - AGOSTO', tributacao: 'LUCRO PRESUMIDO', qtd: 34, competencia: 'SETEMBRO' },
-            
-            // Os dados da tabela sugerem que há mais meses/tributações, 
-            // mas vamos focar apenas no que está no print e na sua solicitação.
+            { mes: '09 - SETEMBRO', tributacao: 'LUCRO PRESUMIDO', qtd: 20, competencia: 'SETEMBRO' } // Exemplo
         ];
 
-        // Meses de referência do eixo Y, na ordem desejada (do topo para baixo)
+        // =================================================================
+        // DADOS PARA A TABELA (Formato do Print da Tabela)
+        // Usamos uma estrutura unificada para facilitar a filtragem
+        // =================================================================
+        const DADOS_TABELA_DETALHADA = [];
+        
+        // Mapeia os dados de resumo para o formato de tabela
+        DADOS_BRUTOS_GRAFICOS.forEach(item => {
+            DADOS_TABELA_DETALHADA.push({
+                tributacao: item.tributacao,
+                mesReferencia: item.mes.split(' - ')[1],
+                competencia: item.competencia,
+                qtd: item.qtd
+            });
+        });
+
         const LABELS_MESES_Y = [
             '01 - JANEIRO',
             '05 - MAIO',
             '06 - JUNHO',
             '07 - JULHO',
             '08 - AGOSTO',
-            '09 - SETEMBRO' // Incluído, pois aparece no dado de Lucro Presumido
-        ].map(m => m.split(' - ')[1]); // Retira o número e deixa só o nome do mês
+            '09 - SETEMBRO' 
+        ].map(m => m.split(' - ')[1]); 
 
         const CORES = {
-            AGOSTO: 'rgba(110, 231, 255, 0.9)',   // Ciano (Competência anterior)
-            SETEMBRO: 'rgba(139, 92, 246, 0.9)', // Roxo (Competência atual)
-            DATALABEL_BG: 'rgba(255, 255, 255, 0.9)', // Fundo branco para datalabels
-            DATALABEL_TEXT: '#0f2027' // Texto escuro
+            AGOSTO: 'rgba(110, 231, 255, 0.9)', 
+            SETEMBRO: 'rgba(139, 92, 246, 0.9)', 
+            DATALABEL_BG: 'rgba(255, 255, 255, 0.9)',
+            DATALABEL_TEXT: '#0f2027',
+            HIGHLIGHT: 'rgba(110,231,255,0.2)'
         };
 
+        let chartSimplesInstance = null;
+        let chartPresumidoInstance = null;
+        let activeElements = [];
+
         // =================================================================
-        // FUNÇÃO DE PROCESSAMENTO DE DADOS
-        // Prepara os dados brutos para o formato Chart.js
+        // GRÁFICOS
         // =================================================================
         function processarDadosPorTributacao(tributacao) {
             const dadosFiltrados = DADOS_BRUTOS_GRAFICOS.filter(d => d.tributacao.toUpperCase().includes(tributacao.toUpperCase()));
-
-            // Mapeia a quantidade (QTD) para cada mês (Y) e competência (Dataset)
             const dataAgosto = [];
             const dataSetembro = [];
 
@@ -208,59 +290,54 @@
             return { dataAgosto, dataSetembro };
         }
 
-        // =================================================================
-        // FUNÇÃO DE CRIAÇÃO DO GRÁFICO (GRÁFICO HORIZONTAL)
-        // =================================================================
-        function criarGraficoTributacao(elementId, titulo, dados) {
-            new Chart(document.getElementById(elementId).getContext('2d'), {
+        function criarGraficoTributacao(elementId, tributacao) {
+            const dados = processarDadosPorTributacao(tributacao);
+            const ctx = document.getElementById(elementId).getContext('2d');
+
+            const newChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: LABELS_MESES_Y, // Meses no Eixo Y
+                    labels: LABELS_MESES_Y, 
                     datasets: [
                         {
                             label: 'AGOSTO',
                             data: dados.dataAgosto,
                             backgroundColor: CORES.AGOSTO,
-                            barPercentage: 0.8,
-                            categoryPercentage: 0.8,
                             borderRadius: 4
                         },
                         {
                             label: 'SETEMBRO',
                             data: dados.dataSetembro,
                             backgroundColor: CORES.SETEMBRO,
-                            barPercentage: 0.8,
-                            categoryPercentage: 0.8,
                             borderRadius: 4
                         }
                     ]
                 },
                 options: {
-                    indexAxis: 'y', // GRÁFICO HORIZONTAL
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        x: { // Eixo X é a QUANTIDADE
-                            stacked: false, // Barras separadas para as competências
+                        x: {
+                            stacked: false,
                             beginAtZero: true,
-                            max: 60,
-                            ticks: { color: '#e0e0e0', font: { family: 'Segoe UI' } },
+                            max: 60, // Limite máximo fixo
+                            ticks: { color: '#e0e0e0' },
                             title: { display: true, text: 'Quantidade de Empresas (QTD)', color: '#d6e6ff' },
                             grid: { color: 'rgba(255,255,255,0.1)' }
                         },
-                        y: { // Eixo Y é o MÊS
+                        y: {
                             stacked: false,
-                            ticks: { color: '#e0e0e0', font: { family: 'Orbitron', size: 14 } },
+                            ticks: { color: '#e0e0e0', font: { size: 14 } },
                             grid: { display: false }
                         }
                     },
                     plugins: {
-                        legend: { labels: { color: '#e0e0e0', font: { size: 12 } } },
+                        legend: { labels: { color: '#e0e0e0' } },
                         tooltip: { enabled: false },
-                        // DATALABELS (VALORES NAS BARRAS)
                         datalabels: {
                             anchor: 'end',
-                            align: 'right', // Alinha à direita no gráfico horizontal
+                            align: 'right',
                             color: CORES.DATALABEL_TEXT, 
                             font: { weight: 'bold', size: 14 },
                             formatter: (value) => value > 0 ? value : null,
@@ -272,17 +349,194 @@
                     }
                 }
             });
+
+            if (tributacao.includes('SIMPLES')) {
+                chartSimplesInstance = newChart;
+            } else if (tributacao.includes('LUCRO')) {
+                chartPresumidoInstance = newChart;
+            }
         }
 
+        // =================================================================
+        // TABELA DETALHADA
+        // =================================================================
+        function criarTabelaDetalhe(dados) {
+            const tbody = document.getElementById('tbodyTabelaDetalhe');
+            tbody.innerHTML = '';
+
+            if (dados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ff6e6e;">Nenhum detalhe encontrado. Clique em uma barra do gráfico para filtrar.</td></tr>';
+                return;
+            }
+
+            dados.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span style="font-weight: bold; color: ${item.tributacao.includes('SIMPLES') ? CORES.AGOSTO : CORES.SETEMBRO};">${item.tributacao}</span></td>
+                    <td>${item.mesReferencia}</td>
+                    <td>${item.competencia}</td>
+                    <td><span style="font-weight: bold;">${item.qtd}</span></td>
+                `;
+                // Adiciona o evento de clique na linha da tabela para interatividade inversa
+                tr.onclick = () => highlightChartElement(item.tributacao, item.mesReferencia, item.competencia);
+                tbody.appendChild(tr);
+            });
+        }
+
+        // =================================================================
+        // INTERATIVIDADE: GRÁFICO -> TABELA
+        // =================================================================
+        function handleChartClick(event, tributacao) {
+            const chart = event.target.id.includes('Simples') ? chartSimplesInstance : chartPresumidoInstance;
+            const elements = chart.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+            
+            // Se nenhum elemento foi clicado ou o elemento clicado é o mesmo ativo, limpa o filtro
+            if (elements.length === 0 || (activeElements.length > 0 && elements[0].index === activeElements[0].index && elements[0].datasetIndex === activeElements[0].datasetIndex)) {
+                filtrarTabela(null);
+                activeElements = [];
+                resetChartColors();
+                return;
+            }
+
+            const element = elements[0];
+            const datasetIndex = element.datasetIndex; // 0 para Agosto, 1 para Setembro
+            const index = element.index; 
+            
+            const mesClicado = LABELS_MESES_Y[index];
+            const competenciaClicada = chart.data.datasets[datasetIndex].label;
+
+            activeElements = elements;
+            
+            // 1. FILTRA A TABELA
+            filtrarTabela(tributacao, mesClicado, competenciaClicada);
+
+            // 2. ATUALIZA COR DO GRÁFICO (Destaca a barra clicada e esmaece o resto)
+            updateChartColors(chart, datasetIndex, index);
+        }
+
+        function filtrarTabela(tributacao = null, mes = null, competencia = null) {
+            let dadosFiltrados;
+
+            if (!tributacao) {
+                // Limpar filtro, mostrar tudo
+                dadosFiltrados = DADOS_TABELA_DETALHADA;
+            } else {
+                // Aplicar filtro
+                dadosFiltrados = DADOS_TABELA_DETALHADA.filter(item => {
+                    return item.tributacao.toUpperCase().includes(tributacao.toUpperCase()) &&
+                           item.mesReferencia === mes &&
+                           item.competencia === competencia;
+                });
+            }
+
+            // Recria a tabela com os dados filtrados
+            criarTabelaDetalhe(dadosFiltrados);
+        }
+        
+        function resetChartColors() {
+             [chartSimplesInstance, chartPresumidoInstance].forEach(chart => {
+                if (!chart) return;
+                
+                chart.data.datasets.forEach(dataset => {
+                    dataset.backgroundColor = dataset.label === 'AGOSTO' ? CORES.AGOSTO : CORES.SETEMBRO;
+                });
+                chart.update();
+             });
+        }
+
+        function updateChartColors(chart, activeDatasetIndex, activeIndex) {
+            const inactiveColor = 'rgba(255, 255, 255, 0.2)'; // Cor de esmaecimento
+
+            // Reseta todos os gráficos
+            resetChartColors();
+            
+            // Esmaece o gráfico não clicado
+            const otherChart = chart.id.includes('Simples') ? chartPresumidoInstance : chartSimplesInstance;
+            otherChart.data.datasets.forEach(dataset => {
+                 dataset.backgroundColor = inactiveColor;
+            });
+            otherChart.update();
+            
+            // Esmaece as barras INATIVAS do gráfico clicado
+            chart.data.datasets.forEach((dataset, dIndex) => {
+                dataset.data.forEach((value, iIndex) => {
+                    if (dIndex !== activeDatasetIndex || iIndex !== activeIndex) {
+                        dataset.backgroundColor[iIndex] = inactiveColor;
+                    }
+                });
+                // Recria o array de cores para manipular individualmente
+                dataset.backgroundColor = dataset.data.map((_, i) => {
+                    if (dIndex === activeDatasetIndex && i === activeIndex) {
+                        return dataset.label === 'AGOSTO' ? CORES.AGOSTO : CORES.SETEMBRO; // Cor original
+                    }
+                    return inactiveColor;
+                });
+            });
+            chart.update();
+        }
+
+
+        // =================================================================
+        // INTERATIVIDADE: TABELA -> GRÁFICO (Destaque)
+        // =================================================================
+        function highlightChartElement(tributacao, mes, competencia) {
+            const chart = tributacao.includes('SIMPLES') ? chartSimplesInstance : chartPresumidoInstance;
+            const otherChart = tributacao.includes('SIMPLES') ? chartPresumidoInstance : chartSimplesInstance;
+            
+            // 1. Reseta os estilos
+            resetChartColors();
+            
+            // 2. Esmaece o gráfico não relacionado
+            otherChart.data.datasets.forEach(dataset => {
+                 dataset.backgroundColor = CORES.HIGHLIGHT.replace('0.2', '0.05'); // Bem sutil
+            });
+            otherChart.update();
+
+            // 3. Destaca o elemento no gráfico principal
+            const mesIndex = LABELS_MESES_Y.indexOf(mes);
+            const datasetIndex = competencia === 'AGOSTO' ? 0 : 1;
+
+            if (mesIndex !== -1) {
+                const highlightColor = chart.data.datasets[datasetIndex].backgroundColor;
+                const inactiveColor = 'rgba(255, 255, 255, 0.2)';
+
+                chart.data.datasets.forEach((dataset, dIndex) => {
+                    // Crie um novo array de cores para manipular
+                    dataset.backgroundColor = dataset.data.map((_, i) => {
+                        if (dIndex === datasetIndex && i === mesIndex) {
+                            return highlightColor; // Cor original
+                        }
+                        return inactiveColor;
+                    });
+                });
+                chart.update();
+            }
+
+             // 4. Destaca a linha na tabela (remove o destaque anterior e aplica o novo)
+            document.querySelectorAll('#tbodyTabelaDetalhe tr').forEach(row => row.classList.remove('highlight'));
+            document.querySelectorAll('#tbodyTabelaDetalhe tr').forEach(row => {
+                const [tdTributacao, tdMes, tdCompetencia] = row.querySelectorAll('td');
+                
+                // Mapeia o texto da célula para a comparação
+                const rowTributacao = tdTributacao.textContent.trim();
+                const rowMes = tdMes.textContent.trim();
+                const rowCompetencia = tdCompetencia.textContent.trim();
+
+                if (rowTributacao.includes(tributacao.split(' ')[0]) && rowMes === mes && rowCompetencia === competencia) {
+                    row.classList.add('highlight');
+                }
+            });
+        }
+        
         // =================================================================
         // INICIALIZAÇÃO
         // =================================================================
         document.addEventListener('DOMContentLoaded', () => {
-            const dadosSimples = processarDadosPorTributacao('SIMPLES NACIONAL');
-            const dadosPresumido = processarDadosPorTributacao('LUCRO PRESUMIDO');
+            criarGraficoTributacao('graficoSimplesNacional', 'Simples Nacional');
+            criarGraficoTributacao('graficoLucroPresumido', 'Lucro Presumido');
             
-            criarGraficoTributacao('graficoSimplesNacional', 'Simples Nacional', dadosSimples);
-            criarGraficoTributacao('graficoLucroPresumido', 'Lucro Presumido', dadosPresumido);
+            // Inicializa a tabela mostrando todos os dados de resumo
+            criarTabelaDetalhe(DADOS_TABELA_DETALHADA);
         });
     </script>
 </body>
