@@ -1,127 +1,259 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setor Serviços</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: radial-gradient(circle at top left, #0f2027, #203a43, #2c5364);
-      color: #e0e0e0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    h1 {
-      color: #6ee7ff;
-      text-shadow: 0 0 10px rgba(110,231,255,0.5);
-      font-size: 2.5em;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .subtitle {
-      color: rgba(255,255,255,0.6);
-      font-size: 1.1em;
-      text-align: center;
-      margin-bottom: 50px;
-      max-width: 600px;
-    }
-    .buttons-container {
-      display: flex;
-      gap: 30px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 40px;
-    }
-    .service-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 280px;
-      height: 200px;
-      padding: 30px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(110,231,255,0.15), rgba(139,92,246,0.15));
-      border: 2px solid rgba(110,231,255,0.3);
-      color: #fff;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-      cursor: pointer;
-    }
-    .service-btn:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-      border-color: rgba(110,231,255,0.6);
-      background: linear-gradient(135deg, rgba(110,231,255,0.25), rgba(139,92,246,0.25));
-    }
-    .service-btn .icon {
-      font-size: 3em;
-      margin-bottom: 15px;
-    }
-    .service-btn .title {
-      font-size: 1.3em;
-      font-weight: 600;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-    .service-btn .desc {
-      font-size: 0.85em;
-      color: rgba(255,255,255,0.7);
-      text-align: center;
-      margin-top: 10px;
-    }
-    a.voltar {
-      display: inline-block;
-      margin-top: 30px;
-      padding: 12px 20px;
-      border-radius: 10px;
-      background: rgba(139,92,246,0.3);
-      color: #fff;
-      text-decoration: none;
-      transition: background 0.3s;
-      font-weight: 600;
-    }
-    a.voltar:hover {
-      background: rgba(139,92,246,0.5);
-    }
-
-    @media (max-width: 768px) {
-      .buttons-container {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Setor Serviços</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(
+          circle at top left,
+          #0f2027,
+          #203a43,
+          #2c5364
+        );
+        color: #e0e0e0;
+        display: flex;
         flex-direction: column;
-        gap: 20px;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      h1 {
+        color: #6ee7ff;
+        text-shadow: 0 0 10px rgba(110, 231, 255, 0.5);
+        font-size: 2.5em;
+        text-align: center;
+        margin-bottom: 20px;
+        animation: fadeInDown 0.8s ease-out;
+        font-family: 'Space Mono', monospace;
+        font-weight: 700;
+      }
+      .subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1em;
+        text-align: center;
+        margin-bottom: 50px;
+        max-width: 600px;
+        animation: fadeIn 1s ease-out 0.2s both;
+      }
+      
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .buttons-container {
+        display: flex;
+        gap: 30px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 40px;
       }
       .service-btn {
-        width: 100%;
-        max-width: 350px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 280px;
+        height: 200px;
+        padding: 30px;
+        border-radius: 20px;
+        background: linear-gradient(
+          135deg,
+          rgba(110, 231, 255, 0.15),
+          rgba(139, 92, 246, 0.15)
+        );
+        border: 2px solid rgba(110, 231, 255, 0.3);
+        color: #fff;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        animation: slideInUp 0.6s ease-out both;
+        position: relative;
+        overflow: hidden;
       }
-    }
-  </style>
-</head>
-<body>
-  <h1>Setor Serviços</h1>
-  <p class="subtitle">Escolha o tipo de serviço para visualizar os indicadores e métricas</p>
-  
-  <div class="buttons-container">
-    <a href="servicos-fiscal.html" class="service-btn">
-      <div class="icon">📊</div>
-      <div class="title">SERVIÇOS FISCAL</div>
-      <div class="desc">Indicadores e métricas do setor fiscal</div>
+      .service-btn::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(110, 231, 255, 0.1),
+          transparent
+        );
+        transform: rotate(45deg);
+        transition: all 0.5s ease;
+      }
+      .service-btn:hover::before {
+        left: 100%;
+      }
+      .service-btn:nth-child(1) {
+        animation-delay: 0.3s;
+      }
+      .service-btn:nth-child(2) {
+        animation-delay: 0.4s;
+      }
+      .service-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        border-color: rgba(110, 231, 255, 0.6);
+        background: linear-gradient(
+          135deg,
+          rgba(110, 231, 255, 0.25),
+          rgba(139, 92, 246, 0.25)
+        );
+      }
+      .service-btn .icon {
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(110, 231, 255, 0.15);
+        border: 2px solid rgba(110, 231, 255, 0.4);
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+      }
+      .service-btn .icon svg {
+        width: 40px;
+        height: 40px;
+        stroke: #6ee7ff;
+        stroke-width: 2;
+      }
+      .service-btn:hover .icon {
+        background: rgba(110, 231, 255, 0.3);
+        border-color: rgba(110, 231, 255, 0.7);
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(110, 231, 255, 0.4);
+      }
+      .service-btn .title {
+        font-size: 1.3em;
+        font-weight: 600;
+        text-align: center;
+        letter-spacing: 0.5px;
+        position: relative;
+        z-index: 1;
+      }
+      .service-btn .desc {
+        font-size: 0.85em;
+        color: rgba(255, 255, 255, 0.7);
+        text-align: center;
+        margin-top: 10px;
+        position: relative;
+        z-index: 1;
+      }
+      a.voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 30px;
+        padding: 12px 24px;
+        border-radius: 10px;
+        background: rgba(139, 92, 246, 0.3);
+        border: 1px solid rgba(139, 92, 246, 0.5);
+        color: #fff;
+        text-decoration: none;
+        transition: all 0.3s;
+        font-weight: 600;
+        animation: fadeIn 1s ease-out 0.6s both;
+      }
+      a.voltar:hover {
+        background: rgba(139, 92, 246, 0.5);
+        border-color: rgba(139, 92, 246, 0.8);
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        transform: translateX(-3px);
+      }
+      a.voltar svg {
+        width: 20px;
+        height: 20px;
+        stroke: #fff;
+      }
+
+      @media (max-width: 768px) {
+        .buttons-container {
+          flex-direction: column;
+          gap: 20px;
+        }
+        .service-btn {
+          width: 100%;
+          max-width: 350px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Setor Serviços</h1>
+    <p class="subtitle">
+      Escolha o tipo de serviço para visualizar os indicadores e métricas
+    </p>
+
+    <div class="buttons-container">
+      <a href="servicos-fiscal.html" class="service-btn">
+        <div class="icon">
+          <i data-lucide="file-text"></i>
+        </div>
+        <div class="title">SERVIÇOS FISCAL</div>
+        <div class="desc">Indicadores e métricas do setor fiscal</div>
+      </a>
+
+      <a href="servicos-contabil.html" class="service-btn">
+        <div class="icon">
+          <i data-lucide="trending-up"></i>
+        </div>
+        <div class="title">SERVIÇOS CONTÁBIL</div>
+        <div class="desc">Indicadores e métricas do setor contábil</div>
+      </a>
+    </div>
+
+    <a href="index.html" class="voltar">
+      <i data-lucide="arrow-left"></i>
+      Voltar para Home
     </a>
     
-    <a href="servicos-contabil.html" class="service-btn">
-      <div class="icon">📈</div>
-      <div class="title">SERVIÇOS CONTÁBIL</div>
-      <div class="desc">Indicadores e métricas do setor contábil</div>
-    </a>
-  </div>
-  
-  <a href="index.html" class="voltar">← Voltar para Home</a>
-</body>
+    <script>
+      // Inicializa os ícones Lucide
+      lucide.createIcons();
+    </script>
+  </body>
 </html>

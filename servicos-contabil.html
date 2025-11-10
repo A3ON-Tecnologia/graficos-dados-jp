@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Serviços Contabil</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     
@@ -36,7 +39,8 @@
         h1 {
             color: #6ee7ff;
             text-shadow: 0 0 10px rgba(110,231,255,0.5);
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
             font-size: 2.4rem;
             margin-bottom: 30px;
         }
@@ -268,6 +272,22 @@
     
         <section class="card">
             <h2>Tabela Completa de Dados (198 registros)</h2>
+            
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label for="filtro-tributacao-completa">Tributação</label>
+                    <select id="filtro-tributacao-completa">
+                        <option value="TODOS">Todas</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filtro-competencia-completa">Competência</label>
+                    <select id="filtro-competencia-completa">
+                        <option value="TODOS">Todas</option>
+                    </select>
+                </div>
+            </div>
+            
             <div style="overflow-x: auto;">
                 <table class="table-detalhada" id="tabelaCompleta">
                     <thead>
@@ -574,7 +594,7 @@
                     <td><span style="font-weight: bold;">${item.qtd}</span></td>
                 `;
                 // Adiciona o evento de clique na linha da tabela para interatividade inversa
-                tr.onclick = () => highlightChartElement(item.tributacao, item.mesReferencia, item.competencia);
+                tr.onclick = function() { highlightChartElement(item.tributacao, item.mesReferencia, item.competencia, this); };
                 tbody.appendChild(tr);
             });
         }
@@ -589,13 +609,16 @@
             // Se nenhum elemento foi clicado ou o elemento clicado é o mesmo ativo, limpa o filtro
             if (elements.length === 0 || (activeElements.length > 0 && elements[0].index === activeElements[0].index && elements[0].datasetIndex === activeElements[0].datasetIndex)) {
                 activeElements = [];
-                resetarFiltrosDropdown(); // (MODIFICADO) Reseta os dropdowns
-                aplicarFiltrosGlobais(); // (MODIFICADO) Reaplica os filtros (que agora são "TODOS")
+                resetarFiltrosDropdown();
+                resetarFiltrosTabelaCompleta();
+                aplicarFiltrosGlobais();
+                aplicarFiltrosTabelaCompleta();
                 return;
             }
 
-            // (MODIFICADO) Reseta os filtros dropdown para dar prioridade ao clique
+            // Reseta os filtros dropdown para dar prioridade ao clique
             resetarFiltrosDropdown();
+            resetarFiltrosTabelaCompleta();
 
             const element = elements[0];
             const datasetIndex = element.datasetIndex; // 0 para Agosto, 1 para Setembro
@@ -606,10 +629,13 @@
 
             activeElements = elements;
             
-            // 1. (MODIFICADO) Filtra a tabela (apenas para o clique)
+            // 1. Filtra a tabela de detalhe
             filtrarTabelaPorClique(tributacao, mesClicado, competenciaClicada);
+            
+            // 2. Filtra a tabela completa
+            filtrarTabelaCompletaPorClique(tributacao, competenciaClicada);
 
-            // 2. ATUALIZA COR DO GRÁFICO (Destaca a barra clicada e esmaece o resto)
+            // 3. ATUALIZA COR DO GRÁFICO (Destaca a barra clicada e esmaece o resto)
             updateChartColors(chart, datasetIndex, index);
         }
 
@@ -689,9 +715,10 @@
         // =================================================================
         // INTERATIVIDADE: TABELA -> GRÁFICO (Destaque)
         // =================================================================
-        function highlightChartElement(tributacao, mes, competencia) {
-            // (NOVO) Reseta os filtros dropdown para dar prioridade ao clique
+        function highlightChartElement(tributacao, mes, competencia, sourceElement) {
+            // Reseta os filtros dropdown para dar prioridade ao clique
             resetarFiltrosDropdown();
+            resetarFiltrosTabelaCompleta();
 
             const chart = tributacao.includes('SIMPLES') ? chartSimplesInstance : chartPresumidoInstance;
             const otherChart = tributacao.includes('SIMPLES') ? chartPresumidoInstance : chartSimplesInstance;
@@ -701,7 +728,7 @@
             
             // 2. Esmaece o gráfico não relacionado
             otherChart.data.datasets.forEach(dataset => {
-                 dataset.backgroundColor = CORES.HIGHLIGHT.replace('0.2', '0.05'); // Bem sutil
+                 dataset.backgroundColor = CORES.INACTIVE;
             });
             otherChart.update();
 
@@ -724,9 +751,14 @@
                 chart.update();
             }
 
-             // 4. Destaca a linha na tabela (remove o destaque anterior e aplica o novo)
+            // 4. Destaca a linha na tabela (remove o destaque anterior e aplica o novo)
             document.querySelectorAll('#tbodyTabelaDetalhe tr').forEach(row => row.classList.remove('highlight'));
-            event.currentTarget.classList.add('highlight'); // Aplica o destaque na linha clicada
+            if (sourceElement) {
+                sourceElement.classList.add('highlight');
+            }
+            
+            // 5. Filtra a tabela completa
+            filtrarTabelaCompletaPorClique(tributacao, competencia);
         }
         
         // =================================================================
@@ -2934,6 +2966,11 @@ const DADOS_TABELA_COMPLETA = [
 
 let paginaAtualCompleta = 1;
 const registrosPorPaginaCompleta = 10;
+let dadosFiltradosCompleta = [...DADOS_TABELA_COMPLETA]; // Cópia dos dados para filtrar
+let filtrosAtivosTabelaCompleta = {
+    tributacao: 'TODOS',
+    competencia: 'TODOS'
+};
 
 function renderizarTabelaCompleta() {
     const tbody = document.getElementById('tbodyTabelaCompleta');
@@ -2942,7 +2979,7 @@ function renderizarTabelaCompleta() {
 
     const inicio = (paginaAtualCompleta - 1) * registrosPorPaginaCompleta;
     const fim = inicio + registrosPorPaginaCompleta;
-    const dadosPagina = DADOS_TABELA_COMPLETA.slice(inicio, fim);
+    const dadosPagina = dadosFiltradosCompleta.slice(inicio, fim);
 
     dadosPagina.forEach(item => {
         const tr = document.createElement('tr');
@@ -2957,10 +2994,18 @@ function renderizarTabelaCompleta() {
             <td>${item.conferente}</td>
             <td>${item.colaborador}</td>
         `;
+        // Adiciona evento de clique para interatividade com gráficos
+        tr.onclick = function() { 
+            handleTabelaCompletaClick(item.tributacao, item.competencia);
+            // Destaca a linha clicada
+            document.querySelectorAll('#tbodyTabelaCompleta tr').forEach(row => row.classList.remove('highlight'));
+            this.classList.add('highlight');
+        };
+        tr.style.cursor = 'pointer';
         tbody.appendChild(tr);
     });
 
-    const totalPaginas = Math.ceil(DADOS_TABELA_COMPLETA.length / registrosPorPaginaCompleta);
+    const totalPaginas = Math.ceil(dadosFiltradosCompleta.length / registrosPorPaginaCompleta);
     const info = document.getElementById('infoPagina');
     if (info) info.innerText = `Página ${paginaAtualCompleta} de ${totalPaginas}`;
 
@@ -2977,13 +3022,149 @@ function bindPaginacaoCompleta() {
         if (paginaAtualCompleta > 1) { paginaAtualCompleta--; renderizarTabelaCompleta(); }
     });
     if (btnProx) btnProx.addEventListener('click', () => {
-        const totalPaginas = Math.ceil(DADOS_TABELA_COMPLETA.length / registrosPorPaginaCompleta);
+        const totalPaginas = Math.ceil(dadosFiltradosCompleta.length / registrosPorPaginaCompleta);
         if (paginaAtualCompleta < totalPaginas) { paginaAtualCompleta++; renderizarTabelaCompleta(); }
     });
 }
 
+/**
+ * Popula os filtros da tabela completa com valores únicos
+ */
+function popularFiltrosTabelaCompleta() {
+    const tributacoes = [...new Set(DADOS_TABELA_COMPLETA.map(d => d.tributacao))].sort();
+    const competencias = [...new Set(DADOS_TABELA_COMPLETA.map(d => d.competencia))].sort();
+
+    const selTributacao = document.getElementById('filtro-tributacao-completa');
+    const selCompetencia = document.getElementById('filtro-competencia-completa');
+
+    tributacoes.forEach(t => selTributacao.innerHTML += `<option value="${t}">${t}</option>`);
+    competencias.forEach(c => selCompetencia.innerHTML += `<option value="${c}">${c}</option>`);
+}
+
+/**
+ * Reseta os filtros da tabela completa
+ */
+function resetarFiltrosTabelaCompleta() {
+    document.getElementById('filtro-tributacao-completa').value = 'TODOS';
+    document.getElementById('filtro-competencia-completa').value = 'TODOS';
+    filtrosAtivosTabelaCompleta = { tributacao: 'TODOS', competencia: 'TODOS' };
+}
+
+/**
+ * Aplica os filtros na tabela completa
+ */
+function aplicarFiltrosTabelaCompleta() {
+    filtrosAtivosTabelaCompleta.tributacao = document.getElementById('filtro-tributacao-completa').value;
+    filtrosAtivosTabelaCompleta.competencia = document.getElementById('filtro-competencia-completa').value;
+
+    // Filtra os dados
+    if (filtrosAtivosTabelaCompleta.tributacao === 'TODOS' && filtrosAtivosTabelaCompleta.competencia === 'TODOS') {
+        dadosFiltradosCompleta = [...DADOS_TABELA_COMPLETA];
+    } else {
+        dadosFiltradosCompleta = DADOS_TABELA_COMPLETA.filter(item => {
+            const matchTributacao = filtrosAtivosTabelaCompleta.tributacao === 'TODOS' || item.tributacao === filtrosAtivosTabelaCompleta.tributacao;
+            const matchCompetencia = filtrosAtivosTabelaCompleta.competencia === 'TODOS' || item.competencia === filtrosAtivosTabelaCompleta.competencia;
+            
+            return matchTributacao && matchCompetencia;
+        });
+    }
+
+    // Reseta para a primeira página e renderiza
+    paginaAtualCompleta = 1;
+    renderizarTabelaCompleta();
+}
+
+/**
+ * Filtra a tabela completa com base em um clique no gráfico ou tabela de detalhe
+ */
+function filtrarTabelaCompletaPorClique(tributacao, competencia) {
+    // Mapeia SIMPLES NACIONAL para SIMPLES e LUCRO PRESUMIDO para PRESUMIDO
+    const tributacaoMap = {
+        'SIMPLES NACIONAL': 'SIMPLES',
+        'LUCRO PRESUMIDO': 'PRESUMIDO'
+    };
+    
+    const tributacaoFiltro = tributacaoMap[tributacao.toUpperCase()] || tributacao.toUpperCase();
+    
+    // Mapeia competência para o formato da tabela completa (ex: AGOSTO -> 08 - AGOSTO)
+    const competenciaMap = {
+        'AGOSTO': '08 - AGOSTO',
+        'SETEMBRO': '09 - SETEMBRO'
+    };
+    
+    const competenciaFiltro = competenciaMap[competencia.toUpperCase()] || competencia;
+    
+    dadosFiltradosCompleta = DADOS_TABELA_COMPLETA.filter(item => {
+        return item.tributacao.toUpperCase().includes(tributacaoFiltro) &&
+               item.competencia.toUpperCase().includes(competenciaFiltro);
+    });
+    
+    paginaAtualCompleta = 1;
+    renderizarTabelaCompleta();
+}
+
+/**
+ * Função chamada quando clica em uma linha da tabela completa
+ */
+function handleTabelaCompletaClick(tributacao, competencia) {
+    // Reseta filtros
+    resetarFiltrosDropdown();
+    resetarFiltrosTabelaCompleta();
+    
+    // Mapeia SIMPLES para SIMPLES NACIONAL e PRESUMIDO para LUCRO PRESUMIDO
+    const tributacaoMap = {
+        'SIMPLES': 'SIMPLES NACIONAL',
+        'PRESUMIDO': 'LUCRO PRESUMIDO'
+    };
+    
+    const tributacaoGrafico = tributacaoMap[tributacao.toUpperCase()] || tributacao;
+    
+    // Extrai o nome do mês da competência (ex: "08 - AGOSTO" -> "AGOSTO")
+    const competenciaGrafico = competencia.split(' - ')[1] || competencia;
+    
+    // Destaca no gráfico
+    const chart = tributacaoGrafico.includes('SIMPLES') ? chartSimplesInstance : chartPresumidoInstance;
+    const otherChart = tributacaoGrafico.includes('SIMPLES') ? chartPresumidoInstance : chartSimplesInstance;
+    
+    // Reseta cores
+    resetChartColors();
+    
+    // Esmaece o gráfico não relacionado
+    otherChart.data.datasets.forEach(dataset => {
+        dataset.backgroundColor = CORES.INACTIVE;
+    });
+    otherChart.update();
+    
+    // Destaca o dataset correspondente no gráfico relacionado
+    const datasetIndex = competenciaGrafico === 'AGOSTO' ? 0 : 1;
+    
+    chart.data.datasets.forEach((dataset, dIndex) => {
+        if (dIndex === datasetIndex) {
+            // Mantém a cor original para o dataset clicado
+            dataset.backgroundColor = dataset.label === 'AGOSTO' ? CORES.AGOSTO : CORES.SETEMBRO;
+        } else {
+            // Esmaece os outros datasets
+            dataset.backgroundColor = CORES.INACTIVE;
+        }
+    });
+    chart.update();
+    
+    // Filtra a tabela de detalhe
+    const dadosFiltrados = DADOS_TABELA_DETALHADA.filter(item => {
+        return item.tributacao.toUpperCase().includes(tributacaoGrafico.toUpperCase()) &&
+               item.competencia.toUpperCase() === competenciaGrafico.toUpperCase();
+    });
+    criarTabelaDetalhe(dadosFiltrados);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     bindPaginacaoCompleta();
+    popularFiltrosTabelaCompleta();
+    
+    // Adiciona listeners aos filtros
+    document.getElementById('filtro-tributacao-completa').addEventListener('change', aplicarFiltrosTabelaCompleta);
+    document.getElementById('filtro-competencia-completa').addEventListener('change', aplicarFiltrosTabelaCompleta);
+    
     renderizarTabelaCompleta();
 });
 </script>
