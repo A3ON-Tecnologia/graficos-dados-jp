@@ -17,6 +17,56 @@
       align-items: center;
       min-height: 100vh;
     }
+
+    .totais {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 1000px;
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .totalmes {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .totalmes h2 {
+      color: #6ee7ff;
+      font-size: 1.5rem;
+      margin: 0;
+      font-weight: bold;
+      white-space: nowrap;
+      text-shadow: 0 0 10px rgba(110,231,255,0.3);
+    }
+
+    .totalmes p {
+      color: #e0e0e0;
+      font-size: 1.1rem;
+      margin: 0;
+      padding: 0.5rem 1rem;
+      background-color: rgba(59, 130, 246, 0.15);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      white-space: nowrap;
+    }
+
+    .totalmes p:hover {
+      background-color: rgba(59, 130, 246, 0.25);
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.4);
+      cursor: pointer;
+    }
+
     h1 {
       margin-top: 20px;
       color: #6ee7ff;
@@ -233,6 +283,54 @@
     .table-detalhada tr.selected {
       background: rgba(110,231,255,0.2);
     }
+
+    .totais-simples {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .totalmes-simples {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .totalmes-simples h2 {
+      color: #6ee7ff;
+      font-size: 1.5rem;
+      margin: 0;
+      font-weight: bold;
+      text-shadow: 0 0 10px rgba(110,231,255,0.3);
+      white-space: nowrap;
+    }
+
+    .totalmes-simples p {
+      color: #e0e0e0;
+      font-size: 1.1rem;
+      margin: 0;
+      padding: 0.5rem 1rem;
+      background-color: rgba(59, 130, 246, 0.15);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      white-space: nowrap;
+    }
+
+    .totalmes-simples p:hover {
+      background-color: rgba(59, 130, 246, 0.25);
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.4);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -278,6 +376,19 @@
       </div>
     </div>
   </div>
+
+  <div class="totais">
+
+    <div class="totalmes">
+      <h2>Total por Mês</h2>
+      <p>06 - JUNHO : 595</p>
+      <p>07 - JULHO : 598</p>
+      <p>08 - AGOSTO : 599</p>
+      <p>09 - SETEMBRO : 604</p>
+    </div>
+
+  </div>
+
   <table id="tabelaGeral">
     <thead>
       <tr>
@@ -347,6 +458,18 @@
       <button class="btn-filtro cor-verde" data-desc="Dep. Serviços" onclick="filtrarSimplesNacional('Dep. Serviços')">DEP. SERVIÇOS</button>
       <button class="btn-filtro cor-vermelho" data-desc="Dep. Simples Nacional" onclick="filtrarSimplesNacional('Dep. Simples Nacional')">DEP. SIMPLES NACIONAL</button>
       <button class="btn-filtro cor-amarelo" data-desc="Filiais" onclick="filtrarSimplesNacional('Filiais')">FILIAIS</button>
+    </div>
+
+    <div class="totais-simples">
+
+      <div class="totalmes-simples">
+        <h2>Total por Mês Simples Nacional - Detalhamento</h2>
+        <p>06 - JUNHO : 346</p>
+        <p>07 - JULHO : 348</p>
+        <p>08 - AGOSTO : 350</p>
+        <p>09 - SETEMBRO : 348</p>
+      </div>
+
     </div>
 
     <table class="table-detalhada" id="tableSimplesDetalhado">
